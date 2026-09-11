@@ -215,49 +215,101 @@ export function RotatingBookWheel({
         })}
       </div>
 
-      {/* ── Wheel Bottom Controls Bar: Prev, Next & Auto-Play ─────── */}
-      <div className="absolute bottom-2 inset-x-0 flex items-center justify-center gap-3 z-30">
-        <button
+      {/* ── Apple-Inspired Liquid Glass Rotation Controls ───────── */}
+      <div className="absolute bottom-2 inset-x-0 flex items-center justify-center gap-2.5 z-30">
+        {/* Liquid Glassy Navigation Left Arrow */}
+        <motion.button
           onClick={handlePrev}
-          className="w-9 h-9 rounded-full bg-white/95 border border-slate-200 hover:border-slate-300 hover:bg-white text-slate-700 shadow-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
+          whileHover={{ scale: 1.08, backgroundColor: "rgba(255, 255, 255, 0.9)" }}
+          whileTap={{ scale: 0.92 }}
+          className="w-9 h-9 rounded-full backdrop-blur-md bg-white/60 dark:bg-neutral-800/60 border border-white/60 dark:border-neutral-700/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center text-neutral-700 dark:text-neutral-300 transition-all duration-200 cursor-pointer"
           title="Previous Book"
         >
           <ChevronLeft className="w-4 h-4" />
-        </button>
+        </motion.button>
 
+        {/* Liquid Auto-Rotate Frosted Capsule with Dynamic Progress Fill */}
         {onToggleAutoPlay && (
-          <button
+          <motion.button
             onClick={onToggleAutoPlay}
-            className={cn(
-              "px-3.5 py-1.5 rounded-full border text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer",
-              isAutoPlaying
-                ? "bg-slate-900 text-white border-slate-900"
-                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-            )}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.95 }}
+            className="backdrop-blur-md bg-white/70 dark:bg-neutral-800/70 border border-white/50 dark:border-neutral-700/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_8px_20px_rgba(0,0,0,0.06)] rounded-full px-4 py-2 flex items-center gap-2.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 cursor-pointer transition-all duration-200"
             title={isAutoPlaying ? "Pause 2s Auto-Rotation" : "Resume Auto-Rotation"}
           >
-            {isAutoPlaying ? (
-              <>
-                <Pause className="w-3 h-3 text-blue-400" />
-                <span>Auto (2s)</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3 h-3 text-emerald-500" />
-                <span>Paused</span>
-              </>
-            )}
-          </button>
+            {/* Dynamic Liquid Progress Ring */}
+            <div className="relative w-4 h-4 flex items-center justify-center shrink-0">
+              <svg className="w-4 h-4 -rotate-90" viewBox="0 0 20 20">
+                {/* Background Track */}
+                <circle
+                  cx="10"
+                  cy="10"
+                  r="7"
+                  className="stroke-neutral-300/60 dark:stroke-neutral-600/60"
+                  strokeWidth="2.5"
+                  fill="none"
+                />
+                {/* Dynamic 2-Second Liquid Fill Ring */}
+                {isAutoPlaying && !isHovered && !userInteractedTimeout ? (
+                  <motion.circle
+                    key={`fill-ring-${activeIndex}`}
+                    cx="10"
+                    cy="10"
+                    r="7"
+                    className="stroke-blue-600 dark:stroke-blue-400"
+                    strokeWidth="2.5"
+                    strokeDasharray={44}
+                    initial={{ strokeDashoffset: 44 }}
+                    animate={{ strokeDashoffset: 0 }}
+                    transition={{ duration: 2.3, ease: "linear" }}
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                ) : (
+                  <circle
+                    cx="10"
+                    cy="10"
+                    r="7"
+                    className={cn(
+                      "stroke-current",
+                      isAutoPlaying ? "text-blue-500" : "text-amber-500"
+                    )}
+                    strokeWidth="2.5"
+                    strokeDasharray={44}
+                    strokeDashoffset={isAutoPlaying ? 0 : 44}
+                    fill="none"
+                  />
+                )}
+              </svg>
+
+              {/* Center Micro Icon */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {isAutoPlaying ? (
+                  <Pause className="w-2 h-2 text-neutral-800 dark:text-neutral-200" />
+                ) : (
+                  <Play className="w-2 h-2 text-amber-600 dark:text-amber-400 fill-current ml-0.5" />
+                )}
+              </div>
+            </div>
+
+            <span className="font-medium tracking-tight">
+              {isAutoPlaying ? "Auto (2s)" : "Paused"}
+            </span>
+          </motion.button>
         )}
 
-        <button
+        {/* Liquid Glassy Navigation Right Arrow */}
+        <motion.button
           onClick={handleNext}
-          className="w-9 h-9 rounded-full bg-white/95 border border-slate-200 hover:border-slate-300 hover:bg-white text-slate-700 shadow-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
+          whileHover={{ scale: 1.08, backgroundColor: "rgba(255, 255, 255, 0.9)" }}
+          whileTap={{ scale: 0.92 }}
+          className="w-9 h-9 rounded-full backdrop-blur-md bg-white/60 dark:bg-neutral-800/60 border border-white/60 dark:border-neutral-700/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center text-neutral-700 dark:text-neutral-300 transition-all duration-200 cursor-pointer"
           title="Next Book"
         >
           <ChevronRight className="w-4 h-4" />
-        </button>
+        </motion.button>
       </div>
+
     </div>
   );
 }

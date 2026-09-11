@@ -121,7 +121,7 @@ export default function LibraryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Column: Synced Active Book Information Panel */}
-            <div className="lg:col-span-6 xl:col-span-5 z-10">
+            <div className="lg:col-span-6 xl:col-span-5 z-10 flex flex-col justify-center h-full">
               <ActiveBookDetail
                 book={activeBook}
                 interaction={activeBook ? initialUserInteractions[activeBook.id] : undefined}
@@ -143,6 +143,7 @@ export default function LibraryPage() {
                 }
               />
             </div>
+
 
 
             {/* Right Column: Dynamic Radial 3D Book Wheel */}

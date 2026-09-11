@@ -144,20 +144,20 @@ export function CatalogSearchBar({
   };
 
   return (
-    <div ref={containerRef} className={cn("relative w-full max-w-lg select-none", className)}>
+    <div ref={containerRef} className={cn("relative z-40 w-full max-w-lg select-none", className)}>
       {/* ── Search Input Container ─────────────────────────────── */}
       <div
         className={cn(
           "relative flex items-center bg-white border rounded-xl transition-all duration-200 shadow-2xs",
           isOpen
-            ? "border-slate-900 ring-2 ring-slate-900/15 shadow-md"
-            : "border-slate-300/80 hover:border-slate-400"
+            ? "border-neutral-900 ring-2 ring-neutral-900/10 shadow-md"
+            : "border-neutral-200 hover:border-neutral-300"
         )}
       >
         <Search
           className={cn(
             "w-4 h-4 absolute left-3.5 transition-colors pointer-events-none",
-            isOpen ? "text-slate-900" : "text-slate-400"
+            isOpen ? "text-neutral-900" : "text-neutral-400"
           )}
         />
 
@@ -173,7 +173,7 @@ export function CatalogSearchBar({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleInputKeyDown}
           placeholder={placeholder}
-          className="w-full pl-10 pr-24 py-2.5 sm:py-3 rounded-xl bg-transparent text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
+          className="w-full pl-10 pr-24 py-2.5 sm:py-3 rounded-xl bg-transparent text-xs sm:text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
         />
 
         {/* Right Adornments: Clear Button & Shortcut Indicator */}
@@ -182,13 +182,13 @@ export function CatalogSearchBar({
             <button
               type="button"
               onClick={handleClear}
-              className="w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+              className="w-6 h-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-500 hover:text-neutral-800 flex items-center justify-center transition-colors cursor-pointer"
               title="Clear search"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           ) : (
-            <div className="hidden sm:flex items-center gap-0.5 px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono text-slate-500 font-semibold shadow-3xs">
+            <div className="hidden sm:flex items-center gap-0.5 px-2 py-0.5 rounded bg-neutral-100 border border-neutral-200 text-[10px] font-mono text-neutral-500 font-semibold shadow-3xs">
               {isMac ? (
                 <>
                   <span>⌘</span>
@@ -205,24 +205,24 @@ export function CatalogSearchBar({
         </div>
       </div>
 
-      {/* ── Animated Dropdown Results Menu ─────────────────────── */}
+      {/* ── 1. Absolute Overlay Suggestions Dropdown Sheet ─────── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.98 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 divide-y divide-slate-100"
+            className="absolute left-0 right-0 top-full mt-2 z-50 bg-white/95 backdrop-blur-xl border border-neutral-200/80 rounded-2xl shadow-2xl shadow-neutral-900/10 overflow-hidden divide-y divide-neutral-100"
           >
             {/* Header Tag */}
-            <div className="px-4 py-2.5 bg-slate-50/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+            <div className="px-4 py-2.5 bg-neutral-50/80 flex items-center justify-between text-[11px] font-mono text-neutral-500">
               <span className="font-semibold uppercase tracking-wider">
                 {query ? `Search Results (${filteredResults.length})` : "Featured Suggestions"}
               </span>
               <span className="hidden sm:flex items-center gap-1 text-[10px]">
                 <span>Navigate</span>
-                <span className="px-1 py-0.2 rounded bg-slate-200 text-slate-700 font-bold">↑↓</span>
+                <span className="px-1 py-0.2 rounded bg-neutral-200 text-neutral-700 font-bold">↑↓</span>
                 <span>Select</span>
                 <CornerDownLeft className="w-2.5 h-2.5" />
               </span>
@@ -234,6 +234,7 @@ export function CatalogSearchBar({
                 {filteredResults.map((book, idx) => {
                   const isSelected = idx === selectedIndex;
                   const isFeatured = featuredBooks.some((b) => b.id === book.id);
+
 
                   return (
                     <div
