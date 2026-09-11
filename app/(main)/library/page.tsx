@@ -117,8 +117,8 @@ export default function LibraryPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-24">
       {/* ── 1. Hero Showcase with Radial Book Wheel ─────────────── */}
-      <section className="bg-white border-b border-slate-200 shadow-2xs relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-14">
+      <section className="bg-white rounded-[28px] border border-neutral-200/80 shadow-xs relative overflow-hidden mb-6 mx-4 sm:mx-6 lg:mx-8 mt-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Column: Synced Active Book Information Panel */}
             <div className="lg:col-span-6 xl:col-span-5 z-10 flex flex-col justify-center h-full">
@@ -128,23 +128,8 @@ export default function LibraryPage() {
                 isBookmarked={isCurrentBookmarked}
                 onToggleBookmark={handleToggleBookmark}
                 onOpenReader={(b) => setReaderModalBook(b)}
-                searchBar={
-                  <CatalogSearchBar
-                    books={initialBooksDatabase}
-                    featuredBooks={featuredBooks}
-                    onSelectBook={(selectedBook) => {
-                      setReaderModalBook(selectedBook);
-                    }}
-                    onJumpToWheelIndex={(wheelIndex) => {
-                      setActiveBookIndex(wheelIndex);
-                      setIsAutoPlaying(false);
-                    }}
-                  />
-                }
               />
             </div>
-
-
 
             {/* Right Column: Dynamic Radial 3D Book Wheel */}
             <div className="lg:col-span-6 xl:col-span-7 flex items-center justify-center relative min-h-[460px] sm:min-h-[520px]">
@@ -162,7 +147,7 @@ export default function LibraryPage() {
       </section>
 
       {/* ── 2. Library Infrastructure Features Strip ───────────── */}
-      <section className="bg-white border-b border-neutral-200">
+      <section className="bg-white rounded-[28px] border border-neutral-200/80 shadow-xs mb-6 mx-4 sm:mx-6 lg:mx-8 overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-neutral-100 text-xs">
           <div className="p-5 sm:p-6 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
@@ -208,7 +193,7 @@ export default function LibraryPage() {
 
       {/* ── 3. Active Study Desk Strip (Bookmarked Favorites) ──── */}
       {deskBooks.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-3">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-neutral-900" />
@@ -216,7 +201,7 @@ export default function LibraryPage() {
                 My Study Desk ({deskBooks.length} Pinned Volumes)
               </h2>
             </div>
-            <span className="text-xs text-neutral-400">
+            <span className="text-xs text-neutral-400 font-mono">
               Synchronized to Profile
             </span>
           </div>
@@ -227,7 +212,7 @@ export default function LibraryPage() {
               return (
                 <div
                   key={book.id}
-                  className="bg-white border border-neutral-200/90 rounded-xl p-4 shadow-xs hover:border-neutral-300 transition-all flex flex-col justify-between space-y-3"
+                  className="bg-white border border-neutral-200/90 rounded-2xl p-4 shadow-xs hover:border-neutral-300 transition-all flex flex-col justify-between space-y-3"
                 >
                   <div className="flex gap-3">
                     <img
@@ -250,7 +235,7 @@ export default function LibraryPage() {
 
                   {interaction && (
                     <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] text-neutral-400">
+                      <div className="flex justify-between text-[10px] text-neutral-400 font-mono">
                         <span>Progress</span>
                         <span className="font-medium text-neutral-700">{interaction.progressPercentage}%</span>
                       </div>
@@ -273,7 +258,7 @@ export default function LibraryPage() {
                     </button>
                     <button
                       onClick={() => handleToggleBookmark(book.id)}
-                      className="text-[11px] text-neutral-400 hover:text-neutral-700 cursor-pointer"
+                      className="text-[11px] text-neutral-400 hover:text-neutral-700 cursor-pointer font-mono"
                       title="Remove from Desk"
                     >
                       Remove
@@ -286,44 +271,59 @@ export default function LibraryPage() {
         </section>
       )}
 
-      {/* ── 4. Search & Academic Department Filter ─────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
-        <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs space-y-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="relative w-full md:max-w-md">
-              <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* ── 4. Search & Academic Department Filter Strip (Emil Kowalski Polish) ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2">
+        <div className="bg-white border border-neutral-200/80 rounded-[28px] p-4 sm:p-5 shadow-xs space-y-4">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+            {/* Search Bar Harmonized to Top Global Search Bar */}
+            <div className="relative w-full lg:max-w-md">
+              <Search className="w-4 h-4 text-neutral-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search catalog by title, author, or ISBN..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-50 border border-neutral-200 text-xs sm:text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all"
+                placeholder="Search OPAC catalog by title, author, or ISBN..."
+                className="w-full pl-11 pr-4 h-11 rounded-full bg-neutral-100/80 dark:bg-neutral-800/60 border border-neutral-200/80 dark:border-neutral-700/80 text-xs sm:text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-300 dark:focus:ring-white/10 transition-all outline-none"
               />
             </div>
 
-            {/* Department Filter Pills */}
-            <div className="w-full md:w-auto flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
-              {departments.map((dept) => {
-                const isSelected = selectedDepartment === dept;
-                return (
-                  <button
-                    key={dept}
-                    onClick={() => setSelectedDepartment(dept)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer select-none",
-                      isSelected
-                        ? "bg-neutral-900 text-white"
-                        : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900"
-                    )}
-                  >
-                    {dept}
-                  </button>
-                );
-              })}
+            {/* Department Filter Pills with Emil Kowalski Gliding Spring */}
+            <div className="w-full lg:w-auto overflow-x-auto scrollbar-none pb-1">
+              <div className="relative bg-neutral-100/80 p-1 rounded-full flex items-center gap-1 min-w-max">
+                {departments.map((dept) => {
+                  const isSelected = selectedDepartment === dept;
+                  return (
+                    <motion.button
+                      key={dept}
+                      onClick={() => setSelectedDepartment(dept)}
+                      whileTap={{ scale: 0.94 }}
+                      whileHover={{ y: -1 }}
+                      layout
+                      className={cn(
+                        "relative px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap cursor-pointer select-none transition-colors duration-200 z-10",
+                        isSelected
+                          ? "text-neutral-950 font-semibold"
+                          : "text-neutral-600 hover:text-neutral-900"
+                      )}
+                    >
+                      {/* Animated Floating Background Pill */}
+                      {isSelected && (
+                        <motion.div
+                          layoutId="activeFilterPill"
+                          transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                          className="absolute inset-0 bg-white rounded-full shadow-xs border border-neutral-200/60 z-[-1]"
+                        />
+                      )}
+                      <span>{dept}</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* ── 5. Full Central Catalog Collection Grid ───────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -344,9 +344,10 @@ export default function LibraryPage() {
               <motion.div
                 key={book.id}
                 variants={sectionVariant}
-                className="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-xs hover:shadow-md hover:border-neutral-300 transition-all group"
+                className="bg-white border border-neutral-200/80 rounded-2xl overflow-hidden flex flex-col shadow-xs hover:shadow-md hover:border-neutral-300 transition-all group"
               >
                 {/* Book Cover Banner */}
+
                 <div className="relative h-52 bg-neutral-950 overflow-hidden">
                   <img
                     src={book.coverImage}

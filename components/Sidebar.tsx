@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";

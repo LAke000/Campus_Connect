@@ -39,15 +39,32 @@ export function RotatingBookWheel({
   onSelectBook,
   isAutoPlaying = true,
   onToggleAutoPlay,
-  radius = 210,
+  radius = 205,
   className
 }: RotatingBookWheelProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [userInteractedTimeout, setUserInteractedTimeout] = useState(false);
+  const [turnDirection, setTurnDirection] = useState<"forward" | "backward">("forward");
+  const prevIndexRef = useRef(activeIndex);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const totalBooks = books.length;
-  const angleStep = 360 / totalBooks;
+  const angleStep = 360 / Math.max(1, totalBooks);
+
+  // Track turn direction whenever activeIndex changes
+  useEffect(() => {
+    if (activeIndex !== prevIndexRef.current) {
+      if (
+        activeIndex > prevIndexRef.current ||
+        (prevIndexRef.current === totalBooks - 1 && activeIndex === 0)
+      ) {
+        setTurnDirection("forward");
+      } else {
+        setTurnDirection("backward");
+      }
+      prevIndexRef.current = activeIndex;
+    }
+  }, [activeIndex, totalBooks]);
 
   // ── Auto-Step Timer: Pauses for 2s at each book ───────────────
   useEffect(() => {
@@ -58,7 +75,7 @@ export function RotatingBookWheel({
 
     timerRef.current = setInterval(() => {
       onSelectBook((activeIndex + 1) % totalBooks);
-    }, 2500); // 2 seconds display + 0.5s transition pause
+    }, 2400); // 2s hold + 0.4s transition
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -84,6 +101,7 @@ export function RotatingBookWheel({
 
   // Base rotation angle so active book is at 9 o'clock (180 degrees, facing left panel)
   const baseRotationAngle = 180 - activeIndex * angleStep;
+  const isCurrentlyFilling = isAutoPlaying && !isHovered && !userInteractedTimeout;
 
   return (
     <div
@@ -98,30 +116,93 @@ export function RotatingBookWheel({
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {/* Outer Orbit Circle */}
         <div
-          className="rounded-full border border-dashed border-slate-200/90 absolute opacity-70"
+          className="rounded-full border border-dashed border-neutral-200/80 absolute opacity-70"
           style={{ width: `${radius * 2}px`, height: `${radius * 2}px` }}
         />
 
         {/* Mid Orbit Circle */}
         <div
-          className="rounded-full border border-slate-100 absolute opacity-60"
+          className="rounded-full border border-neutral-100 absolute opacity-60"
           style={{ width: `${radius * 1.4}px`, height: `${radius * 1.4}px` }}
         />
 
         {/* Focal Spotlight Glow at 9 o'clock Position */}
         <div
-          className="absolute w-44 h-44 rounded-full bg-blue-500/15 blur-3xl -translate-x-1/2 pointer-events-none"
+          className="absolute w-44 h-44 rounded-full bg-blue-500/10 blur-3xl -translate-x-1/2 pointer-events-none"
           style={{ left: `calc(50% - ${radius}px)` }}
         />
 
-        {/* Center Compass Rose / Vault Emblem */}
-        <div className="w-20 h-20 rounded-full bg-white/80 border border-slate-200/90 shadow-sm backdrop-blur-sm flex flex-col items-center justify-center text-center p-2 z-0">
-          <BookOpen className="w-5 h-5 text-slate-700 mb-0.5" />
-          <span className="text-[9px] font-mono font-bold uppercase text-slate-500 leading-none">
-            {activeIndex + 1} of {totalBooks}
+        {/* ── 4. Interactive Center Hub (Dynamic Flipping Book SVG) ── */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border border-neutral-200/80 shadow-md flex flex-col items-center justify-center pointer-events-none select-none z-20">
+          {/* Custom SVG Flipping Book */}
+          <div className="relative w-8 h-6 flex items-center justify-center" style={{ perspective: "600px" }}>
+            <svg
+              className="w-8 h-6 text-neutral-800 dark:text-neutral-200"
+              viewBox="0 0 32 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Back Cover / Left Open Page */}
+              <path
+                d="M16 20C12 18.5 6 18.5 3 20V5C6 3.5 12 3.5 16 5V20Z"
+                className="fill-neutral-100 stroke-neutral-700 dark:fill-neutral-800 dark:stroke-neutral-300"
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+              />
+              {/* Right Open Page */}
+              <path
+                d="M16 20C20 18.5 26 18.5 29 20V5C26 3.5 20 3.5 16 5V20Z"
+                className="fill-neutral-100 stroke-neutral-700 dark:fill-neutral-800 dark:stroke-neutral-300"
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+              />
+              {/* Book Spine Center Line */}
+              <line
+                x1="16"
+                y1="5"
+                x2="16"
+                y2="20"
+                className="stroke-neutral-900 dark:stroke-white"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            {/* Reactive Flipping Page Leaf */}
+            <motion.div
+              key={`page-flip-${activeIndex}`}
+              initial={{
+                rotateY: turnDirection === "forward" ? 0 : -160,
+                opacity: 0.95
+              }}
+              animate={{
+                rotateY: turnDirection === "forward" ? -160 : 0,
+                opacity: 1
+              }}
+              transition={{
+                duration: 0.5,
+                ease: [0.16, 1, 0.3, 1]
+              }}
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "2px",
+                width: "13px",
+                height: "17px",
+                transformOrigin: "left center",
+                backfaceVisibility: "hidden"
+              }}
+              className="rounded-r-xs bg-white dark:bg-neutral-800 border-r border-t border-b border-neutral-400 dark:border-neutral-500 shadow-2xs pointer-events-none"
+            />
+          </div>
+
+          {/* Tabular Number Counter */}
+          <span className="text-[11px] font-medium font-mono text-neutral-500 tracking-wider tabular-nums mt-1 leading-none">
+            {activeIndex + 1} / {totalBooks}
           </span>
         </div>
       </div>
+
 
       {/* ── Radial Arranged 3D Book Cards ──────────────────────── */}
       <div className="relative w-full h-full flex items-center justify-center">
@@ -163,10 +244,10 @@ export function RotatingBookWheel({
               {/* 3D Angled Book Cover Card with Realistic Spine Shadow */}
               <div
                 className={cn(
-                  "relative w-[100px] h-[146px] sm:w-[114px] sm:h-[166px] rounded-xl overflow-hidden bg-slate-900 border transition-all duration-300 transform-gpu",
+                  "relative w-[100px] h-[146px] sm:w-[114px] sm:h-[166px] rounded-xl overflow-hidden bg-neutral-900 border transition-all duration-300 transform-gpu",
                   isActive
-                    ? "border-blue-500 ring-4 ring-blue-500/40 shadow-2xl shadow-blue-500/30"
-                    : "border-slate-300/80 hover:border-slate-400 shadow-md hover:shadow-lg"
+                    ? "border-blue-500 ring-4 ring-blue-500/30 shadow-2xl shadow-blue-500/25"
+                    : "border-neutral-300/80 hover:border-neutral-400 shadow-md hover:shadow-lg"
                 )}
                 style={{
                   transform: `rotateY(${isActive ? "0deg" : `${(x / radius) * 12}deg`}) rotateZ(${
@@ -204,10 +285,9 @@ export function RotatingBookWheel({
                   </span>
                 </div>
 
-
                 {/* Active Indicator Floating Badge */}
                 {isActive && (
-                  <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-md animate-pulse" />
+                  <div className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-blue-500 border-2 border-white shadow-md animate-pulse" />
                 )}
               </div>
             </motion.div>
@@ -222,7 +302,7 @@ export function RotatingBookWheel({
           onClick={handlePrev}
           whileHover={{ scale: 1.08, backgroundColor: "rgba(255, 255, 255, 0.9)" }}
           whileTap={{ scale: 0.92 }}
-          className="w-9 h-9 rounded-full backdrop-blur-md bg-white/60 dark:bg-neutral-800/60 border border-white/60 dark:border-neutral-700/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center text-neutral-700 dark:text-neutral-300 transition-all duration-200 cursor-pointer"
+          className="w-9 h-9 rounded-full backdrop-blur-md bg-white/70 dark:bg-neutral-800/70 border border-neutral-200/80 dark:border-neutral-700/60 shadow-sm flex items-center justify-center text-neutral-700 dark:text-neutral-300 transition-all duration-200 cursor-pointer"
           title="Previous Book"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -232,9 +312,9 @@ export function RotatingBookWheel({
         {onToggleAutoPlay && (
           <motion.button
             onClick={onToggleAutoPlay}
-            whileHover={{ scale: 1.04 }}
+            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.95 }}
-            className="backdrop-blur-md bg-white/70 dark:bg-neutral-800/70 border border-white/50 dark:border-neutral-700/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_8px_20px_rgba(0,0,0,0.06)] rounded-full px-4 py-2 flex items-center gap-2.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 cursor-pointer transition-all duration-200"
+            className="inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md px-3.5 py-1.5 shadow-sm min-w-[108px] justify-center cursor-pointer select-none transition-all duration-200"
             title={isAutoPlaying ? "Pause 2s Auto-Rotation" : "Resume Auto-Rotation"}
           >
             {/* Dynamic Liquid Progress Ring */}
@@ -250,13 +330,13 @@ export function RotatingBookWheel({
                   fill="none"
                 />
                 {/* Dynamic 2-Second Liquid Fill Ring */}
-                {isAutoPlaying && !isHovered && !userInteractedTimeout ? (
+                {isCurrentlyFilling ? (
                   <motion.circle
                     key={`fill-ring-${activeIndex}`}
                     cx="10"
                     cy="10"
                     r="7"
-                    className="stroke-blue-600 dark:stroke-blue-400"
+                    className="stroke-neutral-900 dark:stroke-white"
                     strokeWidth="2.5"
                     strokeDasharray={44}
                     initial={{ strokeDashoffset: 44 }}
@@ -272,7 +352,7 @@ export function RotatingBookWheel({
                     r="7"
                     className={cn(
                       "stroke-current",
-                      isAutoPlaying ? "text-blue-500" : "text-amber-500"
+                      isAutoPlaying ? "text-neutral-900 dark:text-white" : "text-neutral-400"
                     )}
                     strokeWidth="2.5"
                     strokeDasharray={44}
@@ -287,12 +367,12 @@ export function RotatingBookWheel({
                 {isAutoPlaying ? (
                   <Pause className="w-2 h-2 text-neutral-800 dark:text-neutral-200" />
                 ) : (
-                  <Play className="w-2 h-2 text-amber-600 dark:text-amber-400 fill-current ml-0.5" />
+                  <Play className="w-2 h-2 text-neutral-600 dark:text-neutral-400 fill-current ml-0.5" />
                 )}
               </div>
             </div>
 
-            <span className="font-medium tracking-tight">
+            <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300 tracking-tight tabular-nums">
               {isAutoPlaying ? "Auto (2s)" : "Paused"}
             </span>
           </motion.button>
@@ -303,15 +383,15 @@ export function RotatingBookWheel({
           onClick={handleNext}
           whileHover={{ scale: 1.08, backgroundColor: "rgba(255, 255, 255, 0.9)" }}
           whileTap={{ scale: 0.92 }}
-          className="w-9 h-9 rounded-full backdrop-blur-md bg-white/60 dark:bg-neutral-800/60 border border-white/60 dark:border-neutral-700/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center text-neutral-700 dark:text-neutral-300 transition-all duration-200 cursor-pointer"
+          className="w-9 h-9 rounded-full backdrop-blur-md bg-white/70 dark:bg-neutral-800/70 border border-neutral-200/80 dark:border-neutral-700/60 shadow-sm flex items-center justify-center text-neutral-700 dark:text-neutral-300 transition-all duration-200 cursor-pointer"
           title="Next Book"
         >
           <ChevronRight className="w-4 h-4" />
         </motion.button>
       </div>
-
     </div>
   );
 }
 
 export default RotatingBookWheel;
+

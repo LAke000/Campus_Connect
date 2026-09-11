@@ -19,7 +19,6 @@ export interface ActiveBookDetailProps {
   onToggleBookmark?: (bookId: string) => void;
   onOpenReader?: (book: Book) => void;
   onAccessDatabases?: () => void;
-  searchBar?: React.ReactNode;
   className?: string;
 }
 
@@ -30,7 +29,6 @@ export function ActiveBookDetail({
   onToggleBookmark,
   onOpenReader,
   onAccessDatabases,
-  searchBar,
   className
 }: ActiveBookDetailProps) {
   if (!book) return null;
@@ -155,13 +153,13 @@ export function ActiveBookDetail({
         </div>
       </div>
 
-      {/* ── Bottom Section: Perfectly Anchored Actions & Search Bar ── */}
-      <div className="space-y-3 pt-3 border-t border-neutral-100 shrink-0">
+      {/* ── Bottom Section: Perfectly Anchored Action CTAs ─────── */}
+      <div className="pt-3 border-t border-neutral-100 shrink-0">
         <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
           {/* Primary Access E-Databases CTA */}
           <button
             onClick={() => onOpenReader?.(book)}
-            className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99]"
+            className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99]"
           >
             <BookOpen className="w-4 h-4 text-neutral-300" />
             <span>Access E-Databases</span>
@@ -172,7 +170,7 @@ export function ActiveBookDetail({
           <button
             onClick={() => onToggleBookmark?.(book.id)}
             className={cn(
-              "px-4 py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer select-none active:scale-[0.99]",
+              "px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer select-none active:scale-[0.99]",
               isBookmarked
                 ? "bg-neutral-100 border-neutral-300 text-neutral-900"
                 : "bg-white border-neutral-200 hover:border-neutral-300 text-neutral-700 hover:bg-neutral-50"
@@ -191,13 +189,11 @@ export function ActiveBookDetail({
             )}
           </button>
         </div>
-
-        {/* Expandable Live Catalog Search Bar */}
-        {searchBar && <div className="pt-0.5">{searchBar}</div>}
       </div>
     </div>
   );
 }
+
 
 
 export default ActiveBookDetail;
