@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   CheckCircle2,
@@ -20,7 +20,7 @@ import {
   Check,
   ChevronRight,
   TrendingUp,
-  Bookmark
+  Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Chapter, Subject, QuizQuestion } from "@/types/curriculum";
@@ -50,7 +50,7 @@ export function QuizRunner({
   onExit,
   onComplete
 }: QuizRunnerProps) {
-  const questions: QuizQuestion[] = chapter.quizQuestions || [];
+  const questions: QuizQuestion[] = chapter.questions || chapter.quizQuestions || [];
   const totalQuestions = questions.length;
 
   // ── State Management ──────────────────────────────────────────
@@ -87,7 +87,9 @@ export function QuizRunner({
     const correctCount = answeredEntries.filter((a) => a.isCorrect).length;
     const incorrectCount = answeredEntries.length - correctCount;
     const accuracyPercentage =
-      totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+      answeredEntries.length > 0
+        ? Math.round((correctCount / answeredEntries.length) * 100)
+        : 0;
 
     return {
       totalQuestions,
@@ -122,7 +124,8 @@ export function QuizRunner({
       totalQuestions,
       correctCount: summaryMetrics.correctCount,
       incorrectCount: summaryMetrics.incorrectCount,
-      accuracyPercentage: summaryMetrics.accuracyPercentage,
+      accuracyPercentage:
+        totalQuestions > 0 ? Math.round((summaryMetrics.correctCount / totalQuestions) * 100) : 0,
       timeSpentSeconds: timerSeconds
     });
   };
@@ -174,8 +177,10 @@ export function QuizRunner({
 
   // ── Summary Screen View ───────────────────────────────────────
   if (isQuizCompleted && !isReviewMode) {
-    const isPassing = summaryMetrics.accuracyPercentage >= 70;
-    const isMastery = summaryMetrics.accuracyPercentage >= 90;
+    const finalAccuracy =
+      totalQuestions > 0 ? Math.round((summaryMetrics.correctCount / totalQuestions) * 100) : 0;
+    const isPassing = finalAccuracy >= 70;
+    const isMastery = finalAccuracy >= 90;
 
     return (
       <motion.div
@@ -225,7 +230,7 @@ export function QuizRunner({
             </h2>
 
             <p className="text-slate-600 text-sm max-w-lg mx-auto">
-              Unit {chapter.chapterNumber}: {chapter.title}
+              Unit {chapter.number ?? chapter.chapterNumber}: {chapter.title}
               {subject && ` • [${subject.code}] ${subject.name}`}
             </p>
           </div>
@@ -253,12 +258,10 @@ export function QuizRunner({
               <div
                 className={cn(
                   "text-2xl sm:text-3xl font-black",
-                  summaryMetrics.accuracyPercentage >= 70
-                    ? "text-emerald-600"
-                    : "text-amber-600"
+                  finalAccuracy >= 70 ? "text-emerald-600" : "text-amber-600"
                 )}
               >
-                {summaryMetrics.accuracyPercentage}%
+                {finalAccuracy}%
               </div>
             </div>
 
@@ -278,18 +281,15 @@ export function QuizRunner({
                 Avg / Question
               </span>
               <div className="text-2xl sm:text-3xl font-black text-slate-950 font-mono">
-                {totalQuestions > 0
-                  ? Math.round(timerSeconds / totalQuestions)
-                  : 0}
-                s
+                {totalQuestions > 0 ? Math.round(timerSeconds / totalQuestions) : 0}s
               </div>
             </div>
           </div>
 
-          {/* Detailed Question Review Matrix */}
+          {/* Detailed Question Review Matrix (1 to 20 Grid) */}
           <div className="border-t border-slate-100 pt-6 my-6 relative z-10">
             <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mb-3">
-              Performance Breakdown by Question
+              Performance Breakdown by Question (Click to Review Explanations)
             </h4>
             <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
               {questions.map((q, idx) => {
@@ -305,11 +305,11 @@ export function QuizRunner({
                       setIsReviewMode(true);
                     }}
                     className={cn(
-                      "h-10 rounded-xl font-mono text-xs font-bold flex flex-col items-center justify-center transition-all cursor-pointer border",
+                      "h-10 rounded-xl font-mono text-xs font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
                       isCorrect
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 shadow-2xs"
                         : isAnswered
-                        ? "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100"
+                        ? "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100 shadow-2xs"
                         : "bg-slate-100 text-slate-500 border-slate-200"
                     )}
                   >
@@ -342,7 +342,7 @@ export function QuizRunner({
                 className="flex-1 sm:flex-none px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <BookOpen className="w-4 h-4" />
-                <span>Review Explanations</span>
+                <span>Review All Explanations</span>
               </button>
 
               <button
@@ -367,7 +367,7 @@ export function QuizRunner({
 
   return (
     <div className="w-full max-w-5xl mx-auto py-6 px-4 sm:px-6 space-y-6">
-      {/* ── 1. Top Bar: Chapter Title, Counter, Timer, Progress Bar ── */}
+      {/* ── 1. Top Bar: Chapter Title, Live Score Tracking & Timer ── */}
       <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-3">
@@ -387,13 +387,21 @@ export function QuizRunner({
                   </span>
                 )}
                 <span className="text-xs font-bold text-slate-800">
-                  Unit {chapter.chapterNumber}: {chapter.title}
+                  Unit {chapter.number ?? chapter.chapterNumber}: {chapter.title}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 self-end sm:self-auto">
+          <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto flex-wrap">
+            {/* Live Score Tracker */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200/80 rounded-lg text-xs font-mono font-bold text-emerald-800">
+              <Target className="w-3.5 h-3.5 text-emerald-600" />
+              <span>
+                Score: {summaryMetrics.correctCount}/{summaryMetrics.answeredCount}
+              </span>
+            </div>
+
             {/* Live Timer */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-700">
               <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -402,7 +410,7 @@ export function QuizRunner({
 
             {/* Question Counter */}
             <div className="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-lg text-xs font-bold text-blue-700 font-mono">
-              Question {currentQuestionIndex + 1} of {totalQuestions}
+              Q.{currentQuestionIndex + 1} / {totalQuestions}
             </div>
           </div>
         </div>
@@ -410,7 +418,9 @@ export function QuizRunner({
         {/* Live Smooth Progress Bar */}
         <div className="space-y-1.5">
           <div className="flex justify-between text-[11px] font-mono text-slate-400">
-            <span>Progress: {Object.keys(userAnswers).length} answered</span>
+            <span>
+              Progress: {Object.keys(userAnswers).length} of {totalQuestions} answered
+            </span>
             <span>{progressPercentage}% Complete</span>
           </div>
           <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -424,11 +434,11 @@ export function QuizRunner({
         </div>
       </div>
 
-      {/* ── 2. Quick Nav Bar: 1-to-N / 1-to-20 Bubble Grid ────────── */}
+      {/* ── 2. 1-to-20 Question Navigation Grid ───────────────────── */}
       <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[11px] font-mono font-bold uppercase text-slate-400">
-            Quick Navigation Palette
+          <span className="text-[11px] font-mono font-bold uppercase text-slate-500">
+            1-to-{totalQuestions} Question Navigation Grid
           </span>
           <div className="flex items-center gap-3 text-[10px] font-mono text-slate-500">
             <span className="flex items-center gap-1">
@@ -455,9 +465,9 @@ export function QuizRunner({
                 key={q.id || idx}
                 onClick={() => setCurrentQuestionIndex(idx)}
                 className={cn(
-                  "w-8 h-8 sm:w-9 sm:h-9 rounded-xl font-mono text-xs font-bold transition-all duration-150 flex items-center justify-center shrink-0 cursor-pointer border",
+                  "w-8 h-8 sm:w-9 sm:h-9 rounded-xl font-mono text-xs font-bold transition-all duration-150 flex items-center justify-center shrink-0 cursor-pointer border select-none",
                   isCurrent
-                    ? "ring-2 ring-slate-900 ring-offset-2 border-slate-900 bg-slate-900 text-white shadow-sm"
+                    ? "ring-2 ring-slate-900 ring-offset-2 border-slate-900 bg-slate-900 text-white shadow-sm scale-105"
                     : isCorrect
                     ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
                     : isAnswered
@@ -536,7 +546,7 @@ export function QuizRunner({
             )}
           </div>
 
-          {/* 4 Option Buttons with Hover Scale & Instant Answer Reveal */}
+          {/* 4 Option Buttons with Instant Feedback */}
           <div className="space-y-3">
             <span className="text-[11px] font-mono font-bold uppercase text-slate-400 block mb-1">
               Select One Option:
@@ -544,8 +554,7 @@ export function QuizRunner({
 
             <div className="grid grid-cols-1 gap-2.5">
               {currentQuestion.options.map((optionText, optionIdx) => {
-                const isSelected =
-                  currentAnswer?.selectedIndex === optionIdx;
+                const isSelected = currentAnswer?.selectedIndex === optionIdx;
                 const isTheCorrectOption =
                   optionIdx === currentQuestion.correctAnswerIndex;
 
@@ -565,9 +574,8 @@ export function QuizRunner({
                       badgeStyle = "bg-rose-600 text-white";
                     }
                   } else if (isTheCorrectOption) {
-                    // Show where the correct answer was if user picked wrong
                     optionStyle =
-                      "bg-emerald-50/60 border-emerald-300 text-emerald-900 border-dashed font-medium";
+                      "bg-emerald-50/70 border-emerald-400 text-emerald-900 border-dashed font-semibold";
                     badgeStyle = "bg-emerald-200 text-emerald-800";
                   } else {
                     optionStyle =
@@ -585,7 +593,7 @@ export function QuizRunner({
                     onClick={() => handleSelectOption(optionIdx)}
                     disabled={isCurrentAnswered && !isReviewMode}
                     className={cn(
-                      "w-full p-3.5 sm:p-4 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer",
+                      "w-full p-3.5 sm:p-4 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer select-none",
                       optionStyle
                     )}
                   >
@@ -628,7 +636,7 @@ export function QuizRunner({
             </div>
           </div>
 
-          {/* Detailed Technical Explanation Box Animated In */}
+          {/* Detailed Instant Technical Explanation Box */}
           <AnimatePresence>
             {isCurrentAnswered && (
               <motion.div
@@ -648,7 +656,7 @@ export function QuizRunner({
                 >
                   <div className="flex items-center gap-2 font-mono font-bold text-xs uppercase tracking-wider">
                     <Sparkles className="w-4 h-4 text-blue-600" />
-                    <span>Technical Concept & Logic Breakdown</span>
+                    <span>Step-by-Step Analytical Explanation</span>
                   </div>
 
                   <p className="leading-relaxed text-slate-700 text-xs sm:text-sm font-normal">
@@ -705,3 +713,4 @@ export function QuizRunner({
 }
 
 export default QuizRunner;
+

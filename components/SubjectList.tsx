@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, type Variants } from "motion/react";
 import { ListFilter, Search, BookOpen, Layers3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Subject, Chapter, AcademicYear } from "@/types/curriculum";
@@ -14,7 +14,7 @@ export interface SubjectListProps {
 }
 
 // Fade and Slide Up Variants
-const contentVariants = {
+const contentVariants: Variants = {
   hidden: { opacity: 0, y: 15 },
   visible: (i: number) => ({
     opacity: 1,
@@ -22,7 +22,7 @@ const contentVariants = {
     transition: {
       delay: i * 0.04, // stagger children subtly
       duration: 0.5,
-      ease: [0.16, 1, 0.3, 1] // swift smooth ease
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
     }
   }),
   exit: {
@@ -31,6 +31,7 @@ const contentVariants = {
     transition: { duration: 0.2 }
   }
 };
+
 
 export function SubjectList({
   activeYear,
