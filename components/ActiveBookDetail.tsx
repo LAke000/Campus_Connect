@@ -6,16 +6,8 @@ import {
   BookOpen,
   Bookmark,
   Check,
-  Star,
-  Layers,
-  Sparkles,
   ArrowUpRight,
-  ExternalLink,
-  ShieldCheck,
-  FileText,
-  Clock,
-  Building,
-  GraduationCap
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Book, UserBookInteraction } from "@/types/library";
@@ -44,14 +36,14 @@ export function ActiveBookDetail({
   if (!book) return null;
 
   return (
-    <div className={cn("w-full space-y-5 select-none", className)}>
-      {/* Top Pre-title Pill Bar */}
+    <div className={cn("w-full space-y-4 select-none not-prose", className)}>
+      {/* ── 1. Understated Eyebrow / Academic Header ───────────── */}
       <div className="flex items-center gap-2">
-        <span className="font-mono text-[10px] sm:text-xs font-extrabold uppercase tracking-widest bg-slate-900 text-white px-2.5 py-1 rounded shadow-2xs">
-          LPU Central Vault
+        <span className="text-[11px] font-semibold tracking-wider uppercase text-neutral-500">
+          LPU Central Library
         </span>
-        <span className="text-[11px] font-mono text-slate-500 font-semibold flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded">
-          <Sparkles className="w-3 h-3 text-amber-500" />
+        <span className="text-neutral-300">/</span>
+        <span className="inline-flex items-center text-xs font-medium text-neutral-600">
           Featured Academic Collection
         </span>
       </div>
@@ -59,130 +51,144 @@ export function ActiveBookDetail({
       <AnimatePresence mode="wait">
         <motion.div
           key={book.id}
-          initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -12, filter: "blur(4px)" }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="space-y-4"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="space-y-3.5"
         >
-          {/* Department Badge & Rating Strip */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-mono font-bold">
-              <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
+          {/* ── 2. Refined Inline Metadata Strip ─────────────────── */}
+          <div className="flex flex-wrap items-center gap-2.5 text-xs text-neutral-600">
+            {/* Discipline Badge */}
+            <span className="inline-flex items-center rounded-md border border-neutral-200/80 bg-neutral-50 px-2 py-0.5 font-medium text-neutral-700">
               {book.department}
             </span>
 
-            <div className="flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200/80">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+            <span className="text-neutral-300">•</span>
+
+            {/* Academic Rating */}
+            <div className="inline-flex items-center gap-1 font-medium text-neutral-800">
+              <svg className="w-3.5 h-3.5 fill-amber-400 text-amber-400" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
               <span>{book.rating.toFixed(1)}</span>
-              <span className="text-slate-400 font-normal font-mono">/ 5.0</span>
+              <span className="text-neutral-400 font-normal">/ 5.0</span>
             </div>
 
-            <span
-              className={cn(
-                "text-[10px] font-mono uppercase font-extrabold px-2.5 py-1 rounded-full border",
-                book.availabilityStatus === "Available"
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            <span className="text-neutral-300">•</span>
+
+            {/* Access Mode */}
+            <div className="inline-flex items-center gap-1.5 text-neutral-600 font-medium">
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full shrink-0",
+                  book.availabilityStatus === "Available"
+                    ? "bg-emerald-500"
+                    : book.availabilityStatus === "Digital Only"
+                    ? "bg-blue-500"
+                    : "bg-amber-500"
+                )}
+              />
+              <span>
+                {book.availabilityStatus === "Available"
+                  ? book.callNumber
+                    ? `In Stacks · ${book.callNumber}`
+                    : "In Stacks · Central Library"
                   : book.availabilityStatus === "Digital Only"
-                  ? "bg-purple-50 text-purple-700 border-purple-200"
-                  : "bg-amber-50 text-amber-700 border-amber-200"
-              )}
-            >
-              {book.availabilityStatus}
-            </span>
+                  ? "Full Digital Access"
+                  : "Checked Out · OPAC Hold"}
+              </span>
+            </div>
           </div>
 
-          {/* Book Main Title */}
+          {/* ── 3. Editorial Book Typography ─────────────────────── */}
           <div>
-            <h1 className="text-2xl sm:text-3xl xl:text-4xl font-extrabold text-slate-950 tracking-tight leading-[1.15]">
+            <h1 className="text-2xl sm:text-3xl xl:text-4xl font-extrabold text-neutral-950 tracking-tight leading-[1.15]">
               {book.title}
             </h1>
             {book.subtitle && (
-              <p className="text-xs sm:text-sm font-semibold text-slate-500 font-mono mt-1.5 line-clamp-1">
+              <p className="text-xs sm:text-sm text-neutral-500 font-normal mt-1 leading-normal">
                 {book.subtitle}
               </p>
             )}
           </div>
 
           {/* Author & Publisher Credentials */}
-          <div className="text-xs sm:text-sm text-slate-700 font-medium">
-            <span className="text-slate-500">By </span>
-            <strong className="text-slate-900">{book.author}</strong>
+          <div className="text-xs sm:text-sm text-neutral-600 font-normal">
+            <span className="text-neutral-400">By </span>
+            <span className="text-neutral-900 font-medium">{book.author}</span>
             {book.publisher && (
-              <span className="text-slate-500">
-                {" "}• {book.publisher} {book.edition && `(${book.edition})`}
+              <span className="text-neutral-500">
+                {" "}· {book.publisher} {book.edition && `(${book.edition})`}
               </span>
             )}
           </div>
 
           {/* 2-line Synopsis Teaser */}
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-2 max-w-xl">
+          <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed line-clamp-2 max-w-xl">
             {book.synopsis}
           </p>
 
-          {/* Metadata Specs Pills */}
-          <div className="flex items-center gap-2 sm:gap-3 text-xs font-mono text-slate-500 pt-0.5 flex-wrap">
-            <span className="flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded">
-              <FileText className="w-3 h-3 text-slate-400" />
-              {book.pages.toLocaleString()} Pages
-            </span>
-            <span className="flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded">
-              ISBN: {book.isbn.substring(0, 13)}
-            </span>
-            {book.callNumber && (
-              <span className="hidden sm:inline-flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded text-slate-700 font-semibold">
-                Shelf: {book.callNumber}
-              </span>
+          {/* Metadata Specs (Clean Dot-Delimited Line) */}
+          <div className="flex items-center gap-2 text-xs text-neutral-500 pt-0.5 flex-wrap">
+            <span>{book.pages.toLocaleString()} pages</span>
+            <span className="text-neutral-300">•</span>
+            <span>ISBN {book.isbn.substring(0, 13)}</span>
+            {book.publishYear && (
+              <>
+                <span className="text-neutral-300">•</span>
+                <span>Published {book.publishYear}</span>
+              </>
             )}
           </div>
 
-          {/* Reading Progress Bar (if user has read this book) */}
+          {/* Reading Progress Bar (if user has active session) */}
           {interaction && interaction.progressPercentage > 0 && (
             <div className="space-y-1.5 pt-1 max-w-sm">
-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
-                <span className="font-semibold text-slate-700">Reading Progress</span>
-                <span className="font-bold text-slate-900">{interaction.progressPercentage}%</span>
+              <div className="flex items-center justify-between text-[11px] text-neutral-500">
+                <span className="font-medium text-neutral-700">Reading Progress</span>
+                <span className="font-semibold text-neutral-900">{interaction.progressPercentage}%</span>
               </div>
-              <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="w-full h-1 bg-neutral-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-600 rounded-full transition-all duration-300"
+                  className="h-full bg-neutral-900 rounded-full transition-all duration-300"
                   style={{ width: `${interaction.progressPercentage}%` }}
                 />
               </div>
             </div>
           )}
 
-          {/* ── Action CTAs & Live Catalog Search Bar ───────────── */}
-          <div className="space-y-3 pt-2">
+          {/* ── 4. Action CTAs & Search Bar ──────────────────────── */}
+          <div className="space-y-3 pt-1">
             <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-              {/* Primary Access E-Databases / Read Digital Copy CTA */}
+              {/* Primary Access E-Databases CTA */}
               <button
                 onClick={() => onOpenReader?.(book)}
-                className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow active:scale-[0.98]"
+                className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99]"
               >
-                <BookOpen className="w-4 h-4 text-blue-400" />
+                <BookOpen className="w-4 h-4 text-neutral-300" />
                 <span>Access E-Databases</span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-neutral-400" />
               </button>
 
               {/* Bookmark to Desk CTA */}
               <button
                 onClick={() => onToggleBookmark?.(book.id)}
                 className={cn(
-                  "px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer select-none active:scale-[0.98]",
+                  "px-4 py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer select-none active:scale-[0.99]",
                   isBookmarked
-                    ? "bg-amber-50 border-amber-300 text-amber-900 hover:bg-amber-100"
-                    : "bg-white border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50"
+                    ? "bg-neutral-100 border-neutral-300 text-neutral-900"
+                    : "bg-white border-neutral-200 hover:border-neutral-300 text-neutral-700 hover:bg-neutral-50"
                 )}
               >
                 {isBookmarked ? (
                   <>
-                    <Check className="w-4 h-4 text-amber-600" />
+                    <Check className="w-3.5 h-3.5 text-neutral-900" />
                     <span>On Desk</span>
                   </>
                 ) : (
                   <>
-                    <Bookmark className="w-4 h-4 text-slate-400" />
+                    <Bookmark className="w-3.5 h-3.5 text-neutral-400" />
                     <span>Add to Desk</span>
                   </>
                 )}
@@ -190,7 +196,7 @@ export function ActiveBookDetail({
             </div>
 
             {/* Expandable Live Catalog Search Bar */}
-            {searchBar && <div className="pt-1">{searchBar}</div>}
+            {searchBar && <div className="pt-0.5">{searchBar}</div>}
           </div>
         </motion.div>
       </AnimatePresence>
@@ -198,5 +204,5 @@ export function ActiveBookDetail({
   );
 }
 
-
 export default ActiveBookDetail;
+

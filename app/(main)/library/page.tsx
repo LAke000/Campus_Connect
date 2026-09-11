@@ -161,45 +161,45 @@ export default function LibraryPage() {
       </section>
 
       {/* ── 2. Library Infrastructure Features Strip ───────────── */}
-      <section className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100 text-xs">
+      <section className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-neutral-100 text-xs">
           <div className="p-5 sm:p-6 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
               <ScanLine className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-bold text-slate-900 text-sm">RFID Automated</div>
-              <div className="text-slate-500 font-mono text-[11px]">Instant self-checkout kiosks</div>
+              <div className="font-bold text-neutral-900 text-sm">RFID Automated</div>
+              <div className="text-neutral-500 text-[11px]">Instant self-checkout kiosks</div>
             </div>
           </div>
 
           <div className="p-5 sm:p-6 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
               <MonitorUp className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-bold text-slate-900 text-sm">OPAC Integrated</div>
-              <div className="text-slate-500 font-mono text-[11px]">Real-time 4-level shelf tracking</div>
+              <div className="font-bold text-neutral-900 text-sm">OPAC Integrated</div>
+              <div className="text-neutral-500 text-[11px]">Real-time 4-level shelf tracking</div>
             </div>
           </div>
 
           <div className="p-5 sm:p-6 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
               <Globe className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-bold text-slate-900 text-sm">Global E-Vault</div>
-              <div className="text-slate-500 font-mono text-[11px]">IEEE, Springer, ScienceDirect</div>
+              <div className="font-bold text-neutral-900 text-sm">Global E-Vault</div>
+              <div className="text-neutral-500 text-[11px]">IEEE, Springer, ScienceDirect</div>
             </div>
           </div>
 
           <div className="p-5 sm:p-6 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-              <Flame className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
+              <Flame className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <div className="font-bold text-slate-900 text-sm">14-Day Study Streak</div>
-              <div className="text-slate-500 font-mono text-[11px]">380 mins logged this week</div>
+              <div className="font-bold text-neutral-900 text-sm">14-Day Study Streak</div>
+              <div className="text-neutral-500 text-[11px]">380 mins logged this week</div>
             </div>
           </div>
         </div>
@@ -207,16 +207,16 @@ export default function LibraryPage() {
 
       {/* ── 3. Active Study Desk Strip (Bookmarked Favorites) ──── */}
       {deskBooks.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-3">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <h2 className="text-lg sm:text-xl font-extrabold text-slate-950 tracking-tight">
-                My Active Study Desk ({deskBooks.length} Pinned Volumes)
+              <span className="w-2 h-2 rounded-full bg-neutral-900" />
+              <h2 className="text-base sm:text-lg font-bold text-neutral-950 tracking-tight">
+                My Study Desk ({deskBooks.length} Pinned Volumes)
               </h2>
             </div>
-            <span className="text-xs text-slate-500 font-mono">
-              Synchronized to Student Profile
+            <span className="text-xs text-neutral-400">
+              Synchronized to Profile
             </span>
           </div>
 
@@ -226,22 +226,22 @@ export default function LibraryPage() {
               return (
                 <div
                   key={book.id}
-                  className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between space-y-3"
+                  className="bg-white border border-neutral-200/90 rounded-xl p-4 shadow-xs hover:border-neutral-300 transition-all flex flex-col justify-between space-y-3"
                 >
                   <div className="flex gap-3">
                     <img
                       src={book.coverImage}
                       alt={book.title}
-                      className="w-14 h-20 object-cover rounded-lg border border-slate-200 shrink-0"
+                      className="w-12 h-18 object-cover rounded-md border border-neutral-200 shrink-0"
                     />
                     <div className="min-w-0 flex-1">
-                      <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 uppercase">
+                      <span className="text-[10px] font-medium px-1.5 py-0.2 rounded border border-neutral-200 bg-neutral-50 text-neutral-700 uppercase">
                         {book.department}
                       </span>
-                      <h4 className="text-xs font-bold text-slate-950 truncate mt-1">
+                      <h4 className="text-xs font-bold text-neutral-950 truncate mt-1">
                         {book.title}
                       </h4>
-                      <p className="text-[11px] text-slate-500 truncate font-mono">
+                      <p className="text-[11px] text-neutral-500 truncate">
                         {book.author}
                       </p>
                     </div>
@@ -249,30 +249,30 @@ export default function LibraryPage() {
 
                   {interaction && (
                     <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                      <div className="flex justify-between text-[10px] text-neutral-400">
                         <span>Progress</span>
-                        <span className="font-bold text-slate-700">{interaction.progressPercentage}%</span>
+                        <span className="font-medium text-neutral-700">{interaction.progressPercentage}%</span>
                       </div>
-                      <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="w-full h-1 bg-neutral-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-blue-600 rounded-full"
+                          className="h-full bg-neutral-900 rounded-full"
                           style={{ width: `${interaction.progressPercentage}%` }}
                         />
                       </div>
                     </div>
                   )}
 
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-2 text-xs">
                     <button
                       onClick={() => setReaderModalBook(book)}
-                      className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
+                      className="font-medium text-neutral-900 hover:text-neutral-600 flex items-center gap-1 cursor-pointer"
                     >
                       <BookOpen className="w-3.5 h-3.5" />
                       <span>Continue</span>
                     </button>
                     <button
                       onClick={() => handleToggleBookmark(book.id)}
-                      className="text-[11px] text-slate-400 hover:text-rose-500 font-mono cursor-pointer"
+                      className="text-[11px] text-neutral-400 hover:text-neutral-700 cursor-pointer"
                       title="Remove from Desk"
                     >
                       Remove
@@ -286,17 +286,17 @@ export default function LibraryPage() {
       )}
 
       {/* ── 4. Search & Academic Department Filter ─────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+        <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs space-y-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative w-full md:max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by title, author, ISBN, or keywords..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all"
+                placeholder="Search catalog by title, author, or ISBN..."
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-50 border border-neutral-200 text-xs sm:text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all"
               />
             </div>
 
@@ -309,10 +309,10 @@ export default function LibraryPage() {
                     key={dept}
                     onClick={() => setSelectedDepartment(dept)}
                     className={cn(
-                      "px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer select-none",
+                      "px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer select-none",
                       isSelected
-                        ? "bg-slate-900 text-white font-bold"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                        ? "bg-neutral-900 text-white"
+                        : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900"
                     )}
                   >
                     {dept}
@@ -327,10 +327,10 @@ export default function LibraryPage() {
       {/* ── 5. Full Central Catalog Collection Grid ───────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950 tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-neutral-950 tracking-tight">
             Academic Vault Catalog ({filteredCatalog.length} Volumes Available)
           </h2>
-          <span className="text-xs font-mono text-slate-500">
+          <span className="text-xs text-neutral-500">
             LPU Central Library System
           </span>
         </div>
@@ -343,10 +343,10 @@ export default function LibraryPage() {
               <motion.div
                 key={book.id}
                 variants={sectionVariant}
-                className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col shadow-2xs hover:shadow-md hover:border-slate-300 transition-all group"
+                className="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-xs hover:shadow-md hover:border-neutral-300 transition-all group"
               >
                 {/* Book Cover Banner */}
-                <div className="relative h-56 bg-slate-950 overflow-hidden">
+                <div className="relative h-52 bg-neutral-950 overflow-hidden">
                   <img
                     src={book.coverImage}
                     alt={book.title}
@@ -355,17 +355,17 @@ export default function LibraryPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
                   {/* Top Badge Overlay */}
-                  <div className="absolute top-3 inset-x-3 flex items-center justify-between">
-                    <span className="font-mono text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-900/90 text-white backdrop-blur-xs">
+                  <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between">
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-black/70 text-white backdrop-blur-xs">
                       {book.department}
                     </span>
                     <button
                       onClick={() => handleToggleBookmark(book.id)}
                       className={cn(
-                        "w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer backdrop-blur-xs",
+                        "w-7 h-7 rounded-md flex items-center justify-center transition-colors cursor-pointer backdrop-blur-xs",
                         isBookmarked
-                          ? "bg-amber-400 text-slate-950 shadow-md"
-                          : "bg-black/40 text-white hover:bg-black/60"
+                          ? "bg-amber-400 text-neutral-950 shadow-xs"
+                          : "bg-black/50 text-white hover:bg-black/70"
                       )}
                       title={isBookmarked ? "Remove from Desk" : "Bookmark to Desk"}
                     >
@@ -374,40 +374,42 @@ export default function LibraryPage() {
                   </div>
 
                   {/* Bottom Rating Pill */}
-                  <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-xs font-mono text-white">
-                    <span className="flex items-center gap-1 text-amber-300 font-bold text-[11px]">
-                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                      {book.rating.toFixed(1)}
-                    </span>
-                    <span className="text-[10px] text-slate-300 font-medium">
+                  <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-xs text-white">
+                    <div className="flex items-center gap-1 font-medium text-[11px]">
+                      <svg className="w-3.5 h-3.5 fill-amber-400 text-amber-400" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span>{book.rating.toFixed(1)}</span>
+                    </div>
+                    <span className="text-[10px] text-neutral-300">
                       {book.pages} Pages
                     </span>
                   </div>
                 </div>
 
                 {/* Book Info Body */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div>
-                    <h3 className="font-bold text-sm text-slate-950 line-clamp-1 leading-snug">
+                    <h3 className="font-bold text-sm text-neutral-950 line-clamp-1 leading-snug">
                       {book.title}
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5 truncate">
+                    <p className="text-xs text-neutral-500 font-normal mt-0.5 truncate">
                       {book.author}
                     </p>
-                    <p className="text-xs text-slate-600 line-clamp-2 mt-2 leading-relaxed">
+                    <p className="text-xs text-neutral-600 line-clamp-2 mt-1.5 leading-relaxed">
                       {book.synopsis}
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-slate-400">
+                  <div className="pt-2.5 border-t border-neutral-100 flex items-center justify-between text-xs">
+                    <span className="text-[11px] text-neutral-400">
                       {book.callNumber || `ISBN ${book.isbn.substring(0, 10)}`}
                     </span>
                     <button
                       onClick={() => setReaderModalBook(book)}
-                      className="text-xs font-bold text-slate-900 hover:text-blue-600 flex items-center gap-1 cursor-pointer transition-colors"
+                      className="font-medium text-neutral-900 hover:text-neutral-600 flex items-center gap-1 cursor-pointer transition-colors"
                     >
-                      <span>Read Copy</span>
+                      <span>Read</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -417,6 +419,7 @@ export default function LibraryPage() {
           })}
         </div>
       </section>
+
 
       {/* ── 6. Directory by Floor Level (Levels 2 to 5) ───────── */}
       <section className="p-8 lg:p-16 max-w-7xl mx-auto">

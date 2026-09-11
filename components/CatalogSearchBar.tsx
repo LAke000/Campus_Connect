@@ -243,8 +243,8 @@ export function CatalogSearchBar({
                       className={cn(
                         "group flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all duration-150 gap-3",
                         isSelected
-                          ? "bg-slate-900 text-white shadow-xs"
-                          : "hover:bg-slate-100 text-slate-800"
+                          ? "bg-neutral-900 text-white shadow-xs"
+                          : "hover:bg-neutral-100 text-neutral-800"
                       )}
                     >
                       {/* Left: Thumbnail & Details */}
@@ -252,17 +252,17 @@ export function CatalogSearchBar({
                         <img
                           src={book.coverImage}
                           alt={book.title}
-                          className="w-10 h-14 object-cover rounded-md border border-slate-200 shrink-0 shadow-2xs"
+                          className="w-10 h-14 object-cover rounded-md border border-neutral-200 shrink-0 shadow-2xs"
                         />
 
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 mb-0.5">
                             <span
                               className={cn(
-                                "text-[10px] font-mono font-bold px-1.5 py-0.2 rounded uppercase shrink-0",
+                                "text-[10px] font-medium px-1.5 py-0.2 rounded shrink-0",
                                 isSelected
-                                  ? "bg-slate-800 text-blue-300"
-                                  : "bg-slate-100 text-slate-700"
+                                  ? "bg-neutral-800 text-neutral-200 border border-neutral-700"
+                                  : "bg-neutral-100 text-neutral-700 border border-neutral-200/60"
                               )}
                             >
                               {book.department}
@@ -270,11 +270,11 @@ export function CatalogSearchBar({
                             {isFeatured && (
                               <span
                                 className={cn(
-                                  "text-[10px] font-mono font-semibold flex items-center gap-0.5",
+                                  "text-[10px] font-medium flex items-center gap-0.5",
                                   isSelected ? "text-amber-300" : "text-amber-600"
                                 )}
                               >
-                                <Sparkles className="w-2.5 h-2.5" /> On Wheel
+                                <span>★</span> Featured
                               </span>
                             )}
                           </div>
@@ -282,15 +282,15 @@ export function CatalogSearchBar({
                           <h4
                             className={cn(
                               "text-xs sm:text-sm font-bold truncate leading-tight",
-                              isSelected ? "text-white" : "text-slate-950"
+                              isSelected ? "text-white" : "text-neutral-950"
                             )}
                           >
                             {book.title}
                           </h4>
                           <p
                             className={cn(
-                              "text-[11px] truncate font-medium",
-                              isSelected ? "text-slate-300" : "text-slate-500"
+                              "text-[11px] truncate font-normal",
+                              isSelected ? "text-neutral-400" : "text-neutral-500"
                             )}
                           >
                             {book.author}
@@ -299,36 +299,33 @@ export function CatalogSearchBar({
                       </div>
 
                       {/* Right: Availability Status & Jump Arrow */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span
-                          className={cn(
-                            "text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full border hidden sm:inline-block",
-                            book.availabilityStatus === "Available"
-                              ? isSelected
-                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                                : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      <div className="flex items-center gap-2.5 shrink-0">
+                        <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium">
+                          <span
+                            className={cn(
+                              "h-1.5 w-1.5 rounded-full shrink-0",
+                              book.availabilityStatus === "Available"
+                                ? "bg-emerald-500"
+                                : book.availabilityStatus === "Digital Only"
+                                ? "bg-blue-500"
+                                : "bg-amber-500"
+                            )}
+                          />
+                          <span className={isSelected ? "text-neutral-300" : "text-neutral-600"}>
+                            {book.availabilityStatus === "Available"
+                              ? "In Stacks"
                               : book.availabilityStatus === "Digital Only"
-                              ? isSelected
-                                ? "bg-purple-500/20 text-purple-300 border-purple-500/40"
-                                : "bg-purple-50 text-purple-700 border-purple-200"
-                              : isSelected
-                              ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                              : "bg-amber-50 text-amber-700 border-amber-200"
-                          )}
-                        >
-                          {book.availabilityStatus === "Available"
-                            ? "In Library"
-                            : book.availabilityStatus === "Digital Only"
-                            ? "Available Online"
-                            : "Checked Out"}
-                        </span>
+                              ? "Digital Access"
+                              : "Checked Out"}
+                          </span>
+                        </div>
 
                         <div
                           className={cn(
                             "w-6 h-6 rounded-md flex items-center justify-center transition-colors",
                             isSelected
                               ? "bg-white/20 text-white"
-                              : "text-slate-400 group-hover:text-slate-700"
+                              : "text-neutral-400 group-hover:text-neutral-700"
                           )}
                         >
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -341,18 +338,18 @@ export function CatalogSearchBar({
             ) : (
               /* ── Empty State ───────────────────────────────────── */
               <div className="p-8 text-center space-y-2">
-                <BookOpen className="w-8 h-8 text-slate-300 mx-auto" />
-                <h4 className="text-xs sm:text-sm font-bold text-slate-800">
+                <BookOpen className="w-8 h-8 text-neutral-300 mx-auto" />
+                <h4 className="text-xs sm:text-sm font-semibold text-neutral-800">
                   No physical or digital volumes found in the catalog.
                 </h4>
-                <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                <p className="text-[11px] text-neutral-500 max-w-xs mx-auto">
                   Try searching by author name, department acronym (e.g. CSE, ECE), or standard ISBN code.
                 </p>
               </div>
             )}
 
             {/* Bottom Footer Tip */}
-            <div className="px-4 py-2 bg-slate-50 text-[10px] font-mono text-slate-400 flex items-center justify-between">
+            <div className="px-4 py-2 bg-neutral-50 text-[10px] text-neutral-400 flex items-center justify-between">
               <span>LPU Central Library OPAC Catalog Database</span>
               <span className="hidden sm:inline">Press ESC to dismiss</span>
             </div>
@@ -362,5 +359,6 @@ export function CatalogSearchBar({
     </div>
   );
 }
+
 
 export default CatalogSearchBar;
