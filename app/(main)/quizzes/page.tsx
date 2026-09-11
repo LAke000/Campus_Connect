@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, type Variants } from "motion/react";
 import { useEffect, useState } from "react";
 import {
   Calculator,
@@ -22,7 +22,7 @@ const Questions = () => {
     setMounted(true);
   }, []);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -33,7 +33,7 @@ const Questions = () => {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: {
       opacity: 0,
       y: 20
@@ -43,37 +43,37 @@ const Questions = () => {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: [0.4, 0, 0.2, 1] // Custom cubic bezier for spring physics
+        ease: "easeOut"
       }
     }
   };
 
-  const heroVariants = {
+  const heroVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
         duration: 0.8,
-        ease: [0.4, 0, 0.2, 1],
+        ease: "easeOut",
         staggerChildren: 0.2,
         delayChildren: 0.2
       }
     }
   };
 
-  const textColumnVariants = {
+  const textColumnVariants: Variants = {
     hidden: { opacity: 0, x: -30 },
     visible: {
       opacity: 1,
       x: 0,
       transition: {
         duration: 0.7,
-        ease: [0.4, 0, 0.2, 1]
+        ease: "easeOut"
       }
     }
   };
 
-  const graphicColumnVariants = {
+  const graphicColumnVariants: Variants = {
     hidden: { opacity: 0, x: 30, scale: 0.9 },
     visible: {
       opacity: 1,
@@ -81,33 +81,33 @@ const Questions = () => {
       scale: 1,
       transition: {
         duration: 0.8,
-        ease: [0.4, 0, 0.2, 1],
+        ease: "easeOut",
         delay: 0.3
       }
     }
   };
 
-  const navVariants = {
+  const navVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         duration: 0.5,
-        ease: [0.4, 0, 0.2, 1],
+        ease: "easeOut",
         delay: 0.5
       }
     }
   };
 
-  const subjectCardVariants = {
+  const subjectCardVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         duration: 0.6,
-        ease: [0.4, 0, 0.2, 1]
+        ease: "easeOut"
       }
     }
   };

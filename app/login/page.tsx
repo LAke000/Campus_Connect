@@ -19,6 +19,7 @@ const supabase = createClient(
 
 export default function LoginPage() {
   const [currentStep, setCurrentStep] = useState<'auth' | 'otp' | 'onboarding'>('auth');
+  const [isLoginView, setIsLoginView] = useState(true);
   const [otpCode, setOtpCode] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
   const [selectedRole, setSelectedRole] = useState<'Student' | 'Faculty'>('Student');
@@ -124,7 +125,7 @@ export default function LoginPage() {
             return;
           }
           if (signupData.session) {
-            await supabase.auth.updateSession(signupData.session);
+            await supabase.auth.setSession(signupData.session);
             setCurrentStep('onboarding');
             setIsSubmitting(false);
             return;
@@ -171,7 +172,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/dashboard');
+      router.push('/');
     } catch (err) {
       setErrorMessage("An unexpected error occurred. Please try again.");
       console.error("Onboarding step error:", err);
@@ -240,30 +241,34 @@ export default function LoginPage() {
                 className="space-y-6 w-full"
               >
                 <div className="space-y-2">
-                  <h2 className="font-extrabold text-2xl text-slate-950 tracking-tight">Create Account</h2>
+                  <h2 className="font-extrabold text-2xl text-slate-950 tracking-tight">
+                    {isLoginView ? "Log In" : "Create Account"}
+                  </h2>
                   <p className="text-sm text-slate-500">
-                    Choose your role and enter your email to get started.
+                    {isLoginView ? "Enter your email to sign in to your account." : "Choose your role and enter your email to get started."}
                   </p>
                 </div>
 
-                <motion.div layout className="flex bg-slate-100 p-1 rounded-md">
-                  {['Student', 'Faculty'].map((role) => (
-                    <motion.button
-                      key={role}
-                      type="button"
-                      onClick={() => setSelectedRole(role as 'Student' | 'Faculty')}
-                      layout
-                      whileTap={{ scale: 0.95 }}
-                      whileHover={{ scale: 1.02 }}
-                      className={`flex-1 text-xs font-semibold py-2 rounded-sm transition-all duration-300 ${selectedRole === role
-                          ? "bg-white shadow-sm text-slate-950 border border-slate-200"
-                          : "text-slate-500 hover:text-slate-900"
-                        }`}
-                    >
-                      {role}
-                    </motion.button>
-                  ))}
-                </motion.div>
+                {!isLoginView && (
+                  <motion.div layout className="flex bg-slate-100 p-1 rounded-md">
+                    {['Student', 'Faculty'].map((role) => (
+                      <motion.button
+                        key={role}
+                        type="button"
+                        onClick={() => setSelectedRole(role as 'Student' | 'Faculty')}
+                        layout
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.02 }}
+                        className={`flex-1 text-xs font-semibold py-2 rounded-sm transition-all duration-300 ${selectedRole === role
+                            ? "bg-white shadow-sm text-slate-950 border border-slate-200"
+                            : "text-slate-500 hover:text-slate-900"
+                          }`}
+                      >
+                        {role}
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
 
                 <form className="space-y-4" onSubmit={handleAuthStep}>
                   <div className="space-y-2">
@@ -271,7 +276,7 @@ export default function LoginPage() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder={selectedRole === 'Student' ? "student@college.edu" : "faculty@college.edu"}
+                      placeholder={selectedRole === 'Student' || isLoginView ? "student@college.edu" : "faculty@college.edu"}
                       className="bg-white border border-slate-200 rounded-md focus-visible:border-slate-900 focus-visible:ring-1 focus-visible:ring-slate-900 h-11"
                       required
                     />
@@ -285,6 +290,19 @@ export default function LoginPage() {
                     {isSubmitting ? "Sending code..." : "Continue"}
                   </Button>
                 </form>
+
+                <div className="text-center mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsLoginView(!isLoginView);
+                      clearMessages();
+                    }}
+                    className="text-sm text-slate-500 hover:text-slate-950 font-medium transition-colors cursor-pointer hover:underline outline-none"
+                  >
+                    {isLoginView ? "Don't have an account? Sign up" : "Already have an account? Log in"}
+                  </button>
+                </div>
               </motion.div>
             )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, type Variants } from "motion/react";
 import {
   Search,
   BookOpen,
@@ -16,7 +16,7 @@ import {
 import { cn } from "cn";
 
 const Library = () => {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -26,7 +26,7 @@ const Library = () => {
     }
   };
 
-  const sectionVariant = {
+  const sectionVariant: Variants = {
     hidden: { opacity: 0, y: 12 },
     show: {
       opacity: 1,

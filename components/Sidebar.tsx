@@ -40,6 +40,7 @@ const campusNav = [
   { label: "Faculty Cabins", href: "/faculty-cabins", icon: DoorOpen },
   { label: "Project Showcase", href: "/projects", icon: FolderKanban },
   { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
+  { label: "Profile & Settings", href: "/profile", icon: User },
 ];
 
 function NavItem({
@@ -268,9 +269,12 @@ export function Sidebar({ className }: { className?: string }) {
 
       {/* ── Profile Footer ────────────────────────── */}
       <div className="p-4">
-        <div className="flex items-center gap-3 rounded-md border border-slate-200 bg-white p-3 shadow-sm">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-100">
-            <User className="size-4 text-slate-600" />
+        <Link
+          href="/profile"
+          className="group flex items-center gap-3 rounded-md border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50"
+        >
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors group-hover:bg-slate-200 group-hover:text-slate-900">
+            <User className="size-4" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold tracking-tight text-slate-950">
@@ -280,10 +284,10 @@ export function Sidebar({ className }: { className?: string }) {
               B.TECH CSE · REG: {getUserRegistrationNumber()}
             </p>
           </div>
-        </div>
+        </Link>
         <button
           onClick={handleLogout}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold tracking-tight text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-950"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold tracking-tight text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-950 cursor-pointer"
         >
           <LogOut className="size-4" />
           Log Out
