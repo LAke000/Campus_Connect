@@ -1,253 +1,252 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import {
-  User,
-  ArchiveX,
-  Calendar,
-  LogIn,
-  MonitorPlay,
-  Copy,
-  Check,
-  Settings,
-  Headphones,
-  Clock,
-} from "lucide-react";
+import { supabase } from "@/src/libs/supabase";
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export interface Profile {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+  department: string;
+  academic_year?: number;
+  specialization?: string;
+  is_available: boolean;
+  is_mentor_verified?: boolean;
+}
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring", stiffness: 280, damping: 24, mass: 0.8 },
-  },
-};
+type ActiveTab = "faculty" | "mentors";
 
 export default function DoubtsPage() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [workspaceIdCopied, setWorkspaceIdCopied] = useState(false);
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<ActiveTab>("faculty");
+  const [facultyList, setFacultyList] = useState<Profile[]>([]);
+  const [mentorList, setMentorList] = useState<Profile[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [connectingId, setConnectingId] = useState<string | null>(null);
 
-  const fetchUser = async () => {
+  const tabs: { key: ActiveTab; label: string }[] = [
+    { key: "faculty", label: "Program Faculty" },
+    { key: "mentors", label: "Senior Peer Mentors (3rd & 4th Year)" },
+  ];
+
+  useEffect(() => {
+    async function fetchDoubtsData() {
+      setIsLoading(true);
+      try {
+        let userDepartment = "Computer Science";
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          if (session.user.user_metadata?.department) {
+            userDepartment = session.user.user_metadata.department;
+          } else {
+            const { data: userProfile } = await supabase
+              .from("profiles")
+              .select("department")
+              .eq("id", session.user.id)
+              .maybeSingle();
+
+            if (userProfile?.department) {
+              userDepartment = userProfile.department;
+            }
+          }
+        }
+
+        // Query 1 (Faculty): Fetch profiles where role = 'faculty' and department = userDepartment
+        const { data: facultyData, error: facultyError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("role", "faculty")
+          .eq("department", userDepartment);
+
+        if (facultyError) {
+          console.error("Error fetching faculty profiles:", facultyError);
+        } else if (facultyData) {
+          setFacultyList(facultyData as Profile[]);
+        }
+
+        // Query 2 (Mentors): Fetch profiles where role = 'student', academic_year >= 3, and is_mentor_verified = true
+        const { data: mentorData, error: mentorError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("role", "student")
+          .gte("academic_year", 3)
+          .eq("is_mentor_verified", true);
+
+        if (mentorError) {
+          console.error("Error fetching mentor profiles:", mentorError);
+        } else if (mentorData) {
+          setMentorList(mentorData as Profile[]);
+        }
+      } catch (err) {
+        console.error("Unexpected error fetching doubt clearing data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchDoubtsData();
+  }, []);
+
+  const handleConnect = async (profile: Profile) => {
+    if (connectingId) return;
+
+    setConnectingId(profile.id);
+
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
-        router.push("/login");
-        return;
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
       }
 
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        router.push("/login");
-        return;
+      const res = await fetch("/api/rooms/create", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          hostId: profile.id,
+          title: `Doubt Session with ${profile.full_name}`,
+          department: profile.department || "Computer Science",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to create doubt room.");
       }
-      setUser(data.user);
-    } catch (err) {
-      router.push('/login');
+
+      if (data.redirectUrl) {
+        router.push(data.redirectUrl);
+      }
+    } catch (err: any) {
+      console.error("Error creating doubt room:", err);
+      alert(err?.message || "Failed to initiate doubt clearing session. Please try again.");
     } finally {
-      setLoading(false);
+      setConnectingId(null);
     }
   };
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
-
-  const getUserDisplayName = () => {
-    if (loading || !user) return "Loading...";
-    return user.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
-  };
-
-  const getUserRegistrationNumber = () => {
-    if (loading || !user) return "Loading...";
-    return user?.user_metadata?.registration_number || "Unknown";
-  };
-
-  const copyWorkspaceId = () => {
-    navigator.clipboard.writeText("WKSP-8921");
-    setWorkspaceIdCopied(true);
-    setTimeout(() => setWorkspaceIdCopied(false), 2000);
-  };
+  const currentList = activeTab === "faculty" ? facultyList : mentorList;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-8">
-      <AnimatePresence mode="wait">
-        {!loading && (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="grid max-w-[1440px] mx-auto gap-6 lg:grid-cols-[6.5fr_3.5fr] items-start"
-          >
-            {/* Left Column: Profile & Activity */}
-            <div className="flex flex-col gap-6 w-full">
-              {/* Profile Card */}
-              <motion.div
-                variants={itemVariants}
-                className="bg-white border border-slate-200 shadow-sm p-6 rounded-md flex flex-col md:flex-row md:items-center justify-between gap-6"
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-6xl mx-auto py-8 px-4">
+        <header>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            Live Doubt Clearing
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Connect with departmental faculty and verified senior peers for instant 1-on-1 code walkthroughs.
+          </p>
+        </header>
+
+        <div className="mt-6 inline-flex items-center rounded-lg border border-slate-200 bg-slate-100 p-1">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.key;
+
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={
+                  isActive
+                    ? "bg-slate-900 text-white font-medium text-xs px-4 py-2 rounded-md transition-colors"
+                    : "text-slate-600 hover:text-slate-900 text-xs px-4 py-2 rounded-md transition-colors"
+                }
               >
-                <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 shrink-0 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200">
-                    <User className="w-8 h-8 text-slate-400" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse bg-slate-100 border border-slate-200 rounded-md h-48"
+              />
+            ))
+          ) : currentList.length > 0 ? (
+            currentList.map((profile) => (
+              <div
+                key={profile.id}
+                className="flex flex-col justify-between rounded-md border border-slate-200 bg-white p-5 shadow-sm hover:border-slate-300 transition-colors"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="text-base font-semibold text-slate-900 tracking-tight">
+                        {profile.full_name}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-mono mt-0.5">
+                        {profile.department}
+                        {profile.academic_year ? ` · Year ${profile.academic_year}` : ""}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-flex items-center text-[10px] font-semibold font-mono uppercase px-2 py-0.5 rounded-sm border ${
+                        profile.is_available
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : "bg-slate-100 text-slate-600 border-slate-200"
+                      }`}
+                    >
+                      {profile.is_available ? "Available" : "Offline"}
+                    </span>
                   </div>
-                  <div className="flex flex-col">
-                    <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                      {getUserDisplayName()}
-                    </h1>
-                    <p className="font-mono text-xs text-slate-500 tracking-wider uppercase mt-1">
-                      B.TECH CSE · REG: {getUserRegistrationNumber()}
+                  {profile.specialization && (
+                    <p className="text-xs text-slate-600 line-clamp-2">
+                      <span className="font-medium text-slate-700">Specialization:</span>{" "}
+                      {profile.specialization}
                     </p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  className="shrink-0 border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold shadow-sm w-full md:w-auto h-11 px-5"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Workspace Settings
-                </Button>
-              </motion.div>
-
-              {/* Recent Doubt Activity */}
-              <motion.div
-                variants={itemVariants}
-                className="bg-white border border-slate-200 shadow-sm p-6 rounded-md flex flex-col"
-              >
-                <h2 className="font-bold text-lg text-slate-900 tracking-tight mb-6">
-                  Recent Doubt Sessions
-                </h2>
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mb-4">
-                    <ArchiveX className="w-5 h-5 text-slate-400" />
-                  </div>
-                  <p className="text-slate-900 font-semibold text-sm">No recent activity</p>
-                  <p className="text-slate-500 text-sm mt-1 max-w-sm leading-relaxed">
-                    Your past doubt resolutions and recorded rooms will appear here.
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Right Column: Actions & Upcoming */}
-            <div className="flex flex-col gap-6 w-full">
-              {/* Quick Actions Panel */}
-              <motion.div
-                variants={itemVariants}
-                className="bg-white border border-slate-200 shadow-sm p-6 rounded-md flex flex-col"
-              >
-                <h2 className="font-bold text-lg text-slate-900 tracking-tight mb-4">
-                  Quick Actions
-                </h2>
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  <button className="flex flex-col items-center justify-center gap-2 bg-slate-50 border border-slate-200 hover:border-slate-400 transition-colors rounded-md p-4 group">
-                    <Calendar className="w-5 h-5 text-slate-700 group-hover:text-slate-900 transition-colors" />
-                    <span className="font-semibold text-xs text-slate-700 group-hover:text-slate-900 transition-colors tracking-tight">Schedule</span>
-                  </button>
-                  <button className="flex flex-col items-center justify-center gap-2 bg-slate-50 border border-slate-200 hover:border-slate-400 transition-colors rounded-md p-4 group">
-                    <LogIn className="w-5 h-5 text-slate-700 group-hover:text-slate-900 transition-colors" />
-                    <span className="font-semibold text-xs text-slate-700 group-hover:text-slate-900 transition-colors tracking-tight">Join</span>
-                  </button>
-                  <button className="flex flex-col items-center justify-center gap-2 bg-slate-50 border border-slate-200 hover:border-slate-400 transition-colors rounded-md p-4 group">
-                    <MonitorPlay className="w-5 h-5 text-slate-700 group-hover:text-slate-900 transition-colors" />
-                    <span className="font-semibold text-xs text-slate-700 group-hover:text-slate-900 transition-colors tracking-tight">Host</span>
-                  </button>
+                  )}
                 </div>
 
-                <Separator className="mb-4 bg-slate-100" />
-
-                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-md p-3">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Campus Workspace ID</span>
-                    <span className="font-mono font-bold text-slate-900 tracking-wider">WKSP-8921</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={copyWorkspaceId}
-                    className="h-8 w-8 p-0 text-slate-500 hover:text-slate-900 hover:bg-slate-200 rounded shrink-0"
+                <div className="pt-4 mt-2 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs text-slate-500 truncate max-w-[180px]">
+                    {profile.email}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleConnect(profile)}
+                    disabled={!profile.is_available || connectingId === profile.id}
+                    className="text-xs font-semibold px-3 py-1.5 rounded bg-slate-900 text-white hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {workspaceIdCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                  </Button>
-                </div>
-              </motion.div>
-
-              {/* Upcoming Sessions */}
-              <motion.div
-                variants={itemVariants}
-                className="bg-white border border-slate-200 shadow-sm p-6 rounded-md flex flex-col"
-              >
-                <h2 className="font-bold text-lg text-slate-900 tracking-tight mb-4">
-                  Upcoming Rooms
-                </h2>
-
-                <div className="flex flex-col gap-3 mb-6">
-                  {/* Mock Session 1 */}
-                  <div className="flex flex-col p-4 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors cursor-pointer">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-[10px] uppercase tracking-wider font-semibold bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-sm">
-                        CS201 · Data Structures
-                      </span>
-                      <div className="flex items-center text-slate-500 text-[11px] font-semibold uppercase tracking-wider font-mono">
-                        <Clock className="w-3 h-3 mr-1" />
-                        Today, 4:00 PM
-                      </div>
-                    </div>
-                    <h3 className="font-semibold text-sm text-slate-900 tracking-tight mt-1">
-                      Algorithm Complexity & Big O Analysis
-                    </h3>
-                  </div>
-
-                  {/* Mock Session 2 */}
-                  <div className="flex flex-col p-4 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors cursor-pointer">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-[10px] uppercase tracking-wider font-semibold bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-sm">
-                        MA203 · Linear Algebra
-                      </span>
-                      <div className="flex items-center text-slate-500 text-[11px] font-semibold uppercase tracking-wider font-mono">
-                        <Clock className="w-3 h-3 mr-1" />
-                        Tomorrow, 10:30 AM
-                      </div>
-                    </div>
-                    <h3 className="font-semibold text-sm text-slate-900 tracking-tight mt-1">
-                      Eigenvalues and Eigenvectors Query
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="mt-auto pt-2 border-t border-slate-100">
-                  <button className="flex items-center justify-center w-full py-2 text-slate-600 hover:text-slate-900 text-sm font-semibold transition-colors group">
-                    <Headphones className="w-4 h-4 mr-2 text-slate-400 group-hover:text-slate-700 transition-colors" />
-                    Test Audio and Video
+                    {connectingId === profile.id ? "Connecting..." : "Connect"}
                   </button>
                 </div>
-              </motion.div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 px-4 rounded-md border border-dashed border-slate-200 bg-white/50 text-center">
+              <p className="text-sm font-semibold text-slate-900">
+                No {activeTab === "faculty" ? "faculty members" : "peer mentors"} found
+              </p>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                {activeTab === "faculty"
+                  ? "There are currently no faculty members listed for your department."
+                  : "Verified 3rd and 4th year mentors will appear here when available."}
+              </p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+
+
