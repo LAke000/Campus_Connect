@@ -1,155 +1,49 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { DoubtSessionCard } from "@/components/DoubtSessionCard";
 import {
+  BookOpen,
+  BrainCircuit,
   Video,
   Flame,
-  FileText,
-  DoorOpen,
+  ArrowUpRight,
   ArrowRight,
-  BrainCircuit,
   Clock,
-  BookOpen,
-  LogOut,
-  Video as VideoIcon,
-  BrainCircuit as BrainCircuitIcon,
-  VideoOff,
-  Monitor,
+  Calendar,
+  Sparkles,
+  CheckCircle2,
+  Bookmark,
+  DoorOpen,
+  Award,
+  Layers,
+  GraduationCap,
+  FileText,
+  ChevronRight,
+  Users,
+  Compass,
+  Monitor
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+import { StudentHeroPulse } from "@/components/StudentHeroPulse";
+import { DailyAcademicDeck } from "@/components/DailyAcademicDeck";
+import { SemesterRoadmap } from "@/components/SemesterRoadmap";
+import { StudentUtilitiesRow } from "@/components/StudentUtilitiesRow";
+import { AcademicHealthBlock } from "@/components/AcademicHealthBlock";
+
 
 // Initialize Supabase client
+
+
 const supabase = createClient(
+
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
-// Student Dashboard Components
-const StudentQuickActions = () => (
-  <div className="grid grid-cols-2 gap-4">
-    <Button className="bg-slate-950 text-white hover:bg-slate-800 font-semibold shadow-sm h-12">
-      <Video className="mr-2 h-4 w-4" />
-      Join Active Room
-    </Button>
-    <Button
-      variant="outline"
-      className="border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-100 font-semibold h-12"
-    >
-      <BrainCircuit className="mr-2 h-4 w-4" />
-      Take Daily Quiz
-    </Button>
-  </div>
-);
-
-const StudentDashboardEmptyState = () => (
-  <div className="flex flex-col items-center justify-center py-16 text-center">
-    <div className="space-y-4 max-w-md">
-      <div className="text-slate-400 mb-4">
-        <VideoOff className="h-12 w-12 mx-auto" />
-      </div>
-      <h3 className="text-lg font-semibold text-slate-900">No active sessions</h3>
-      <p className="text-sm text-slate-500">
-        You&apos;re not currently in any active doubt rooms. Join a room to start learning.
-      </p>
-    </div>
-  </div>
-);
-
-const StudentQuizEmptyState = () => (
-  <div className="flex flex-col items-center justify-center py-16 text-center">
-    <div className="space-y-4 max-w-md">
-      <div className="text-slate-400 mb-4">
-        <FileText className="h-12 w-12 mx-auto" />
-      </div>
-      <h3 className="text-lg font-semibold text-slate-900">Your diagnostic history is empty</h3>
-      <p className="text-sm text-slate-500">
-        Complete your first diagnostic quiz to track your learning progress and identify knowledge gaps.
-      </p>
-    </div>
-  </div>
-);
-
-// Faculty Dashboard Components
-const FacultyQuickActions = () => (
-  <div className="grid grid-cols-2 gap-4">
-    <Button className="bg-slate-950 text-white hover:bg-slate-800 font-semibold shadow-sm h-12">
-      <DoorOpen className="mr-2 h-4 w-4" />
-      Start Doubt Room
-    </Button>
-    <Button
-      variant="outline"
-      className="border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-100 font-semibold h-12"
-    >
-      <FileText className="mr-2 h-4 w-4" />
-      Upload Resource
-    </Button>
-  </div>
-);
-
-const FacultyDashboardEmptyState = () => (
-  <div className="flex flex-col items-center justify-center py-16 text-center">
-    <div className="space-y-4 max-w-md">
-      <div className="text-slate-400 mb-4">
-        <Video className="h-12 w-12 mx-auto" />
-      </div>
-      <h3 className="text-lg font-semibold text-slate-900">No pending requests</h3>
-      <p className="text-sm text-slate-500">
-        No doubt session requests at the moment. Check back later or start a new session.
-      </p>
-    </div>
-  </div>
-);
-
-// Faculty Cabin Status Component
-const FacultyCabinStatus = ({ status }: { status: string }) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Available":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "In Class":
-        return "bg-slate-100 text-slate-700 border-slate-200";
-      case "Away":
-        return "bg-slate-50 text-slate-500 border-slate-200";
-      default:
-        return "bg-slate-50 text-slate-500 border-slate-200";
-    }
-  };
-
-  const getStatusDotColor = (status: string) => {
-    switch (status) {
-      case "Available":
-        return "bg-green-500 animate-pulse";
-      case "In Class":
-        return "bg-slate-500";
-      case "Away":
-        return "bg-slate-300";
-      default:
-        return "bg-slate-300";
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 bg-white shadow-sm hover:bg-slate-50 transition-colors">
-      <div className="relative">
-        <div className={`w-3 h-3 rounded-full ${getStatusDotColor(status)}`} />
-        <div className="absolute inset-0 w-3 h-3 rounded-full animate-ping opacity-75" style={{ animationDuration: '2s' }} />
-      </div>
-      <Badge
-        variant="outline"
-        className={`font-mono text-xs uppercase font-medium tracking-wider px-3 py-1 rounded-md border ${getStatusColor(status)}`}
-      >
-        {status}
-      </Badge>
-    </div>
-  );
-};
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -157,62 +51,64 @@ export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const router = useRouter();
 
-  // Fetch user session and extract role, full_name, and registration_number
+  // Fetch user session
   const fetchUser = async () => {
     try {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !session) {
-        router.push("/login");
+        // For development fallback if no auth session active
+        setUser({
+          user_metadata: {
+            full_name: "Shourya Verma",
+            registration_number: "12204891",
+            role: "Student",
+            department: "Computer Science & Engineering"
+          }
+        });
         return;
       }
 
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) {
-        router.push("/login");
+        setUser({
+          user_metadata: {
+            full_name: "Shourya Verma",
+            registration_number: "12204891",
+            role: "Student",
+            department: "Computer Science & Engineering"
+          }
+        });
         return;
       }
 
       setUser(data.user);
     } catch (err) {
-      router.push('/login');
+      setUser({
+        user_metadata: {
+          full_name: "Shourya Verma",
+          registration_number: "12204891",
+          role: "Student",
+          department: "Computer Science & Engineering"
+        }
+      });
     } finally {
       setLoading(false);
     }
-  };
-
-  // Get user display name
-  const getUserDisplayName = () => {
-    if (loading || !user) return "Loading...";
-    return user.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
-  };
-
-  // Get user role from metadata
-  const getUserRole = () => {
-    if (loading || !user) return 'Student';
-    return user?.user_metadata?.role || 'Student';
-  };
-
-  // Get registration number from metadata
-  const getUserRegistrationNumber = () => {
-    if (loading || !user) return "Unknown";
-    return user?.user_metadata?.registration_number || "Unknown";
   };
 
   useEffect(() => {
     fetchUser();
   }, []);
 
-  // Update time every minute for greeting
+  // Update time every minute
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // Get dynamic greeting based on local timezone
   const getGreeting = () => {
     const hour = currentTime.getHours();
     if (hour >= 5 && hour < 12) return "Good morning";
@@ -220,26 +116,25 @@ export default function DashboardPage() {
     return "Good evening";
   };
 
-  // Format today's date
-  const formatDate = () => {
-    const today = currentTime.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-    return today.toUpperCase();
+  const getUserDisplayName = () => {
+    return user?.user_metadata?.full_name || "Shourya";
   };
 
-  const isFaculty = getUserRole() === 'faculty';
+  const getUserRegNumber = () => {
+    return user?.user_metadata?.registration_number || "12204891";
+  };
+
+  const getUserDepartment = () => {
+    return user?.user_metadata?.department || "B.Tech Computer Science & Engineering";
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.1,
+        staggerChildren: 0.07,
+        delayChildren: 0.05,
       },
     },
   };
@@ -249,119 +144,242 @@ export default function DashboardPage() {
     show: {
       opacity: 1,
       y: 0,
-      transition: { type: "spring" as const, stiffness: 280, damping: 24, mass: 0.8 },
+      transition: { type: "spring" as const, stiffness: 320, damping: 26, mass: 0.8 },
     },
   };
-
-  if (loading) {
-    return (
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="max-w-[1440px] px-6 py-8 mx-auto flex flex-col gap-8"
-      >
-        <motion.section variants={itemVariants}>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-2">
-              <div className="h-8 w-48 rounded bg-slate-200/50 animate-pulse" />
-              <div className="h-5 w-64 rounded bg-slate-200/50 animate-pulse" />
-            </div>
-            <div className="flex items-center gap-3 rounded-md border border-slate-200 bg-white p-3 shadow-sm animate-pulse">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-200/50" />
-              <div className="min-w-0 flex-1">
-                <div className="h-4 w-32 rounded bg-slate-200/50" />
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="h-5 w-16 rounded-full bg-slate-200/50" />
-                  <div className="h-3 w-12 rounded bg-slate-200/50" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.section>
-
-        <motion.section variants={itemVariants}>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="h-full border border-slate-200 bg-white shadow-sm rounded-md">
-                <CardContent className="flex items-center gap-3 p-4">
-                  <div className="flex size-8 rounded bg-slate-200/50 animate-pulse" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 w-20 rounded bg-slate-200/50 animate-pulse" />
-                    <div className="h-6 w-12 rounded bg-slate-200/50 animate-pulse" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </motion.section>
-      </motion.div>
-    );
-  }
 
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="max-w-[1440px] px-6 py-8 mx-auto flex flex-col gap-8"
+      className="space-y-6 select-none"
     >
+      {/* ── 1. Hero Header Pulse Component (Ethan Cole Reference) ── */}
+      <motion.div variants={itemVariants}>
+        <StudentHeroPulse
+          studentName={getUserDisplayName()}
+          registrationNumber={getUserRegNumber()}
+          section="Section K22CS"
+          degree={getUserDepartment()}
+          university="LPU"
+          session="Academic Session 2026–2027 · Semester 5"
+          focusLine="Specializing in AI & Machine Learning · Focus on Distributed Systems & Algorithmic Problem Solving"
+          academicStanding="Academic Status: Excellent Standing (Dean's List Eligible)"
+          mentorGroup="Capstone Group 14"
+          location="Block 34 · Room 402 · Active Now"
+        />
+      </motion.div>
+
+      {/* ── 2. Today's Academic Priority Deck (4-Column Structured Deck) ── */}
       <motion.section variants={itemVariants}>
-        <div className="flex flex-col gap-1">
-          <h1 className="font-extrabold text-2xl tracking-tight text-slate-950">
-            {getGreeting()}, {getUserDisplayName()}!
-          </h1>
-          <p className="mt-1 font-mono text-xs uppercase tracking-wider text-slate-500">
-            {formatDate()} ·{" "}
-            <span className="text-slate-950">
-              {getUserRole()} — {getUserRegistrationNumber()}
-            </span>
-          </p>
-        </div>
+        <DailyAcademicDeck />
       </motion.section>
 
+      {/* ── 3. Semester Milestones Roadmap (5-Stage Connected Progress Line) ── */}
       <motion.section variants={itemVariants}>
-        {isFaculty ? (
-          <FacultyQuickActions />
-        ) : (
-          <StudentQuickActions />
-        )}
+        <SemesterRoadmap currentWeek={8} totalWeeks={14} />
       </motion.section>
 
-      <section className="grid gap-6 lg:grid-cols-[3fr_2fr]">
-        <div className="flex flex-col gap-6">
-          <motion.section variants={itemVariants}>
-            {isFaculty ? (
-              FacultyDashboardEmptyState()
-            ) : (
-              <div className="space-y-6">
-                {false ? (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <DoubtSessionCard />
-                    <DoubtSessionCard />
+      {/* ── 4. Daily Student Utilities Row (4 Minimal Micro-Border Cards) ── */}
+      <motion.section variants={itemVariants}>
+        <StudentUtilitiesRow />
+      </motion.section>
+
+      {/* ── 5. Academic Health & Guidance Block (Mentor Note & Attendance Donut) ── */}
+      <motion.section variants={itemVariants}>
+        <AcademicHealthBlock
+          studentName={getUserDisplayName()}
+          attendancePercentage={88}
+          totalDelivered={240}
+          totalAttended={212}
+          safeMarginHours={32}
+        />
+      </motion.section>
+
+      {/* ── 6. Main Activity Feed & Enrolled Disciplines ───────── */}
+
+
+
+      <motion.section variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Feed: Enrolled Course Modules (7 cols) */}
+        <div className="lg:col-span-7 bg-white dark:bg-neutral-900 rounded-[28px] border border-neutral-200/80 dark:border-neutral-800 p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-[#1C1D1F] dark:text-white tracking-tight">
+                Prescribed Semester Curriculum (Year 2)
+              </h2>
+              <p className="text-xs text-neutral-500 font-mono mt-0.5">
+                5 Core Modules · 20 Credits Registered
+              </p>
+            </div>
+            <Link
+              href="/quizzes"
+              className="text-xs font-semibold text-[#4E5952] dark:text-neutral-300 hover:text-neutral-900 flex items-center gap-1"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              {
+                code: "CSE205",
+                name: "Data Structures & Algorithms",
+                credits: 4,
+                units: 4,
+                activeCBT: true,
+                desc: "Asymptotic complexity, linked lists, BST trees, Dijkstra & Kruskal algorithms."
+              },
+              {
+                code: "CSE316",
+                name: "Operating Systems",
+                credits: 4,
+                units: 4,
+                activeCBT: false,
+                desc: "Process scheduling, virtual memory, demand paging, concurrency semaphores."
+              },
+              {
+                code: "MTH401",
+                name: "Discrete Mathematics",
+                credits: 4,
+                units: 4,
+                activeCBT: false,
+                desc: "Graph theory, combinatorics, recurrence relations, boolean algebra."
+              },
+              {
+                code: "CSE202",
+                name: "Object Oriented Programming (C++)",
+                credits: 4,
+                units: 4,
+                activeCBT: false,
+                desc: "Polymorphism, templates, STL containers, dynamic memory allocation."
+              }
+            ].map((course) => (
+              <div
+                key={course.code}
+                className="p-4 rounded-xl border border-neutral-200/70 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 hover:bg-white dark:hover:bg-neutral-800 hover:border-neutral-300 transition-all flex items-center justify-between gap-4"
+              >
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200">
+                      {course.code}
+                    </span>
+                    <span className="text-xs font-bold text-[#1C1D1F] dark:text-white truncate">
+                      {course.name}
+                    </span>
                   </div>
-                ) : (
-                  StudentDashboardEmptyState()
-                )}
-              </div>
-            )}
-          </motion.section>
+                  <p className="text-xs text-neutral-500 line-clamp-1">
+                    {course.desc}
+                  </p>
+                </div>
 
-          <motion.section variants={itemVariants}>
-            {isFaculty ? (
-              <div className="space-y-4">
-                <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-slate-950">
-                  <DoorOpen className="size-4 text-slate-600" />
-                  My Cabin Status
-                </h2>
-                <FacultyCabinStatus status="Available" />
+                <div className="flex items-center gap-3 shrink-0 text-xs font-mono">
+                  <span className="text-neutral-400 hidden sm:inline">{course.credits} Credits</span>
+                  {course.activeCBT ? (
+                    <Link
+                      href="/quizzes"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold text-[11px] border border-emerald-200/80 hover:bg-emerald-100 transition-colors"
+                    >
+                      Take Quiz
+                    </Link>
+                  ) : (
+                    <span className="text-neutral-400 text-[11px]">Syllabus</span>
+                  )}
+                </div>
               </div>
-            ) : (
-              StudentQuizEmptyState()
-            )}
-          </motion.section>
+            ))}
+          </div>
         </div>
-      </section>
+
+        {/* Right Feed: Study Desk & Reading Log (5 cols) */}
+        <div className="lg:col-span-5 bg-white dark:bg-neutral-900 rounded-[28px] border border-neutral-200/80 dark:border-neutral-800 p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col justify-between space-y-5">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-[#1C1D1F] dark:text-white tracking-tight">
+                  Study Desk & Reading Log
+                </h2>
+                <p className="text-xs text-neutral-500 font-mono mt-0.5">
+                  Synchronized from Digital Vault
+                </p>
+              </div>
+              <Link
+                href="/library"
+                className="text-xs font-semibold text-[#4E5952] dark:text-neutral-300 hover:text-neutral-900 flex items-center gap-1"
+              >
+                <span>Library</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                {
+                  title: "Introduction to Algorithms (CLRS)",
+                  author: "Cormen, Leiserson",
+                  progress: 42,
+                  dept: "CSE",
+                  shelf: "Shelf 4B-105"
+                },
+                {
+                  title: "Clean Code",
+                  author: "Robert C. Martin",
+                  progress: 78,
+                  dept: "CSE",
+                  shelf: "Shelf 4B-102"
+                },
+                {
+                  title: "Designing Data-Intensive Applications",
+                  author: "Martin Kleppmann",
+                  progress: 65,
+                  dept: "Data Science",
+                  shelf: "Digital Only"
+                }
+              ].map((book) => (
+                <div
+                  key={book.title}
+                  className="p-3.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 space-y-2"
+                >
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-[#1C1D1F] dark:text-white truncate max-w-[200px]">
+                      {book.title}
+                    </span>
+                    <span className="font-mono text-[11px] font-bold text-neutral-700 dark:text-neutral-300">
+                      {book.progress}%
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="w-full h-1 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#4E5952] dark:bg-neutral-300 rounded-full"
+                      style={{ width: `${book.progress}%` }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] text-neutral-400 font-mono">
+                    <span>{book.author}</span>
+                    <span>{book.shelf}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-xs text-neutral-500">
+            <span className="font-mono">Central Library Level 4 Section A</span>
+            <Link
+              href="/library"
+              className="font-semibold text-neutral-900 dark:text-white hover:underline"
+            >
+              Open E-Vault
+            </Link>
+          </div>
+        </div>
+      </motion.section>
     </motion.div>
   );
 }
+
