@@ -30,8 +30,6 @@ const dailyQuotes = [
 ];
 
 export function TopNavbar({
-  userName = "Shourya",
-  userInitials = "SV",
   className
 }: TopNavbarProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -92,15 +90,6 @@ export function TopNavbar({
           </div>
         </Link>
 
-        {/* Student Monogram Initials Badge */}
-        <div className="hidden md:flex items-center gap-1.5 pl-3 border-l border-[#E7E7E3] dark:border-neutral-800">
-          <div className="w-5 h-5 rounded-full bg-[#2F3B34]/10 border border-[#2F3B34]/20 text-[#2F3B34] dark:text-neutral-300 flex items-center justify-center text-[9px] font-mono font-bold">
-            {userInitials}
-          </div>
-          <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300 truncate max-w-[80px]">
-            {userName}
-          </span>
-        </div>
       </div>
 
       {/* ── Center: Daily Quote ─────────────────────────────────── */}

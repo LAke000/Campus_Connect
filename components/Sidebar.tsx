@@ -22,21 +22,24 @@ import {
   LogOut,
   VideoOff,
   Monitor,
+  Compass,
+  MapPin,
+  CalendarCheck,
 } from "lucide-react";
 
 const supabase = createClient();
 
 const learningNav = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Class Desk", href: "/class-desk", icon: CalendarCheck },
+  { label: "Campus Locator", href: "/campus-locator", icon: Compass },
   { label: "Doubt Sessions", href: "/doubts", icon: Video },
   { label: "Practice Quizzes", href: "/quizzes", icon: BrainCircuit },
   { label: "Digital Library", href: "/library", icon: Library },
 ];
 
 const campusNav = [
-  { label: "Faculty Cabins", href: "/faculty-cabins", icon: DoorOpen },
-  { label: "Project Showcase", href: "/projects", icon: FolderKanban },
-  { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
+  { label: "Faculty Cabins & Doubts", href: "/doubts", icon: DoorOpen },
   { label: "Profile & Settings", href: "/profile", icon: User },
 ];
 

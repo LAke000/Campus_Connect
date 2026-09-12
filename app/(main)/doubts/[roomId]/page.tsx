@@ -2,9 +2,11 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supabase } from "@/src/libs/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+const supabase = createClient();
 import {
   ArrowLeft,
   PhoneOff,
@@ -45,9 +47,59 @@ export default function DoubtLiveRoomPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isHost, setIsHost] = useState(false);
   const [isJitsiReady, setIsJitsiReady] = useState(false);
+  const [mediaState, setMediaState] = useState<
+    "pending" | "prompt" | "requesting" | "granted" | "denied" | "not_found" | "not_readable" | "bypassed"
+  >("pending");
+  const [mediaBypassConfig, setMediaBypassConfig] = useState({ videoMuted: false, audioMuted: false });
 
   const jitsiContainerRef = useRef<HTMLDivElement>(null);
   const jitsiApiRef = useRef<any>(null);
+
+  // Pre-flight Media Access Guard with Robust Device Detection
+  const handleRequestMediaAccess = async () => {
+    setMediaState("requesting");
+    
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+      setMediaState("not_found");
+      return;
+    }
+
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasVideo = devices.some((d) => d.kind === "videoinput");
+      const hasAudio = devices.some((d) => d.kind === "audioinput");
+
+      if (!hasVideo && !hasAudio) {
+        setMediaState("not_found");
+        return;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: hasVideo,
+        audio: hasAudio,
+      });
+
+      // Stop tracks immediately as we just need browser permission granted
+      stream.getTracks().forEach((track) => track.stop());
+      setMediaState("granted");
+      // Mute inherently missing hardware
+      setMediaBypassConfig({ videoMuted: !hasVideo, audioMuted: !hasAudio });
+    } catch (err: any) {
+      console.error("Media error:", err.name, err.message);
+      if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+        setMediaState("not_found");
+      } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
+        setMediaState("not_readable");
+      } else {
+        setMediaState("denied");
+      }
+    }
+  };
+
+  const handleBypassListenOnly = () => {
+    setMediaBypassConfig({ videoMuted: true, audioMuted: true });
+    setMediaState("bypassed");
+  };
 
   // 1. Leave & Cleanup Handler
   const handleLeave = useCallback(async () => {
@@ -136,6 +188,7 @@ export default function DoubtLiveRoomPage() {
           setRoomData(room);
           setIsHost(user.id === room.host_id);
           setLoading(false);
+          setMediaState("prompt");
         }
       } catch (err) {
         console.error("Unexpected error validating room:", err);
@@ -157,7 +210,7 @@ export default function DoubtLiveRoomPage() {
 
   // 3. Dynamically Load Jitsi Script
   useEffect(() => {
-    if (loading || !roomData) return;
+    if (loading || !roomData || (mediaState !== "granted" && mediaState !== "bypassed")) return;
 
     let isMounted = true;
 
@@ -200,7 +253,7 @@ export default function DoubtLiveRoomPage() {
     return () => {
       isMounted = false;
     };
-  }, [loading, roomData]);
+  }, [loading, roomData, mediaState]);
 
   // 4. Mount Jitsi Conference
   useEffect(() => {
@@ -247,8 +300,8 @@ export default function DoubtLiveRoomPage() {
         email: currentUser.email || "",
       },
       configOverwrite: {
-        startWithAudioMuted: false,
-        startWithVideoMuted: false,
+        startWithAudioMuted: mediaBypassConfig.audioMuted,
+        startWithVideoMuted: mediaBypassConfig.videoMuted,
         enableWelcomePage: false,
         prejoinPageEnabled: false,
         disableDeepLinking: true,
@@ -275,6 +328,15 @@ export default function DoubtLiveRoomPage() {
       const api = new window.JitsiMeetExternalAPI("meet.jit.si", options);
       jitsiApiRef.current = api;
 
+      // Fix: Explicitly allow WebRTC media pass-through on the embedded iframe to resolve permission errors
+      const iframe = api.getIFrame();
+      if (iframe) {
+        iframe.setAttribute(
+          "allow",
+          "camera *; microphone *; display-capture *; autoplay *; fullscreen *"
+        );
+      }
+
       api.addEventListeners({
         readyToClose: () => {
           handleLeave();
@@ -300,7 +362,7 @@ export default function DoubtLiveRoomPage() {
     };
   }, [isJitsiReady, roomData, currentUser, roomId, handleLeave]);
 
-  if (loading || errorMsg) {
+  if (loading || errorMsg || (mediaState !== "granted" && mediaState !== "bypassed")) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] bg-slate-50 p-6 text-center">
         {errorMsg ? (
@@ -316,11 +378,127 @@ export default function DoubtLiveRoomPage() {
               Back to Doubt Clearing
             </Button>
           </div>
-        ) : (
+        ) : loading || mediaState === "pending" ? (
           <div className="flex flex-col items-center space-y-3">
             <Loader2 className="w-8 h-8 animate-spin text-slate-900" />
             <p className="text-sm font-semibold text-slate-700">Connecting to secure doubt room...</p>
             <p className="font-mono text-xs text-slate-400 uppercase tracking-widest">{roomId}</p>
+          </div>
+        ) : mediaState === "denied" ? (
+          <div className="flex flex-col items-center space-y-4 bg-white p-8 rounded-2xl border border-slate-200/80 shadow-md max-w-md text-center">
+            <div className="bg-rose-50 p-4 rounded-xl text-rose-600">
+              <AlertCircle className="size-8" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Camera & Audio Blocked</h2>
+              <p className="text-sm text-slate-600 mt-2 leading-relaxed font-medium">
+                Your browser has blocked access to your camera and microphone. Please click the lock icon in your URL bar, allow permissions for this site, and try again.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 w-full mt-2">
+              <Button
+                onClick={handleRequestMediaAccess}
+                className="w-full text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm"
+              >
+                Try Again
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleBypassListenOnly}
+                className="w-full text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors border-slate-200 bg-white"
+              >
+                Continue Without Camera
+              </Button>
+            </div>
+          </div>
+        ) : mediaState === "not_found" ? (
+           <div className="flex flex-col items-center space-y-4 bg-white p-8 rounded-2xl border border-slate-200/80 shadow-md max-w-md text-center">
+            <div className="bg-amber-50 p-4 rounded-xl text-amber-600">
+              <PhoneOff className="size-8" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Media Devices Missing</h2>
+              <p className="text-sm text-slate-600 mt-2 leading-relaxed font-medium">
+                We couldn't detect a functioning camera or microphone connected to your device. You can still join using audio or listen-only mode.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 w-full mt-2">
+              <Button
+                onClick={handleBypassListenOnly}
+                className="w-full text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm"
+              >
+                Join in Listen-Only Mode
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleRequestMediaAccess}
+                className="w-full text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors border-slate-200 bg-white"
+              >
+                Retry Hardware Discovery
+              </Button>
+            </div>
+          </div>
+        ) : mediaState === "not_readable" ? (
+          <div className="flex flex-col items-center space-y-4 bg-white p-8 rounded-2xl border border-slate-200/80 shadow-md max-w-md text-center">
+            <div className="bg-amber-50 p-4 rounded-xl text-amber-600">
+              <AlertCircle className="size-8" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Camera In Use</h2>
+              <p className="text-sm text-slate-600 mt-2 leading-relaxed font-medium">
+                Your webcam or microphone is currently being used by another application (like Zoom or Teams). Close the other app and try again.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 w-full mt-2">
+              <Button
+                onClick={handleRequestMediaAccess}
+                className="w-full text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm"
+              >
+                Try Again
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleBypassListenOnly}
+                className="w-full text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors border-slate-200 bg-white"
+              >
+                Join Without Camera
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center space-y-4 bg-white p-8 rounded-2xl border border-slate-200/80 shadow-md max-w-md text-center">
+            <div className="bg-slate-100 p-4 rounded-xl text-slate-700">
+              <Video className="size-8" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Camera & Audio Setup</h2>
+              <p className="text-sm text-slate-500 mt-2 font-medium">
+                Campus Connect requires access to your camera and microphone to connect you to the live doubt session.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 w-full mt-2">
+              <Button
+                onClick={handleRequestMediaAccess}
+                disabled={mediaState === "requesting"}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm active:scale-[0.98] py-2 h-auto"
+              >
+                {mediaState === "requesting" ? (
+                  <>
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                    Requesting Access...
+                  </>
+                ) : (
+                  "Allow Camera & Microphone"
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleBypassListenOnly}
+                className="w-full text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors border-slate-200 bg-white"
+              >
+                Continue Without Camera
+              </Button>
+            </div>
           </div>
         )}
       </div>

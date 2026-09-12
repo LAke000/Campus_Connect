@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/src/libs/supabase";
 import crypto from "crypto";
+import { createServerClient } from "@supabase/ssr";
 
 interface CreateRoomPayload {
   hostId?: string;
@@ -38,34 +38,46 @@ function generateRoomSlug(department?: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Verify authentication using Supabase client
-    const authHeader = req.headers.get("authorization");
-    const token = authHeader ? authHeader.replace(/^Bearer\s+/i, "") : null;
+    // 1. Initialize Supabase Server Client with cookie store
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll() {
+          // No-op for read operations in Route Handlers
+        },
+      },
+    });
+
+    // 2. Verify authentication using cookies or Bearer token fallback
     let authenticatedUserId: string | null = null;
     let authUserMetadataName: string | null = null;
 
-    if (token) {
-      const {
-        data: { user },
-        error: tokenAuthError,
-      } = await supabase.auth.getUser(token);
+    const {
+      data: { user: cookieUser },
+    } = await supabase.auth.getUser();
 
-      if (!tokenAuthError && user) {
-        authenticatedUserId = user.id;
-        authUserMetadataName = user.user_metadata?.full_name || null;
-      }
-    }
+    if (cookieUser) {
+      authenticatedUserId = cookieUser.id;
+      authUserMetadataName = cookieUser.user_metadata?.full_name || null;
+    } else {
+      const authHeader = req.headers.get("authorization");
+      const token = authHeader ? authHeader.replace(/^Bearer\s+/i, "") : null;
 
-    if (!authenticatedUserId) {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
+      if (token) {
+        const {
+          data: { user: tokenUser },
+          error: tokenAuthError,
+        } = await supabase.auth.getUser(token);
 
-      if (!sessionError && session?.user) {
-        authenticatedUserId = session.user.id;
-        authUserMetadataName = session.user.user_metadata?.full_name || null;
+        if (!tokenAuthError && tokenUser) {
+          authenticatedUserId = tokenUser.id;
+          authUserMetadataName = tokenUser.user_metadata?.full_name || null;
+        }
       }
     }
 
@@ -76,7 +88,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Parse request payload
+    // 3. Parse request payload
     let body: CreateRoomPayload = {};
     try {
       body = await req.json();
@@ -89,33 +101,37 @@ export async function POST(req: NextRequest) {
     const targetDept = department?.trim() || "Computer Science";
     const roomTitle = title?.trim() || "1-on-1 Live Doubt Clearing";
 
-    // 3. Fetch host's full name from profiles (with fallbacks)
+    // 4. Fetch host's full name from profiles (with fallbacks)
     let hostName = authUserMetadataName || "Campus Host";
 
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", targetHostId)
-      .maybeSingle();
-
-    if (profileData?.full_name) {
-      hostName = profileData.full_name;
-    } else {
-      const { data: userData } = await supabase
-        .from("users")
+    try {
+      const { data: profileData } = await supabase
+        .from("profiles")
         .select("full_name")
         .eq("id", targetHostId)
         .maybeSingle();
 
-      if (userData?.full_name) {
-        hostName = userData.full_name;
+      if (profileData?.full_name) {
+        hostName = profileData.full_name;
+      } else {
+        const { data: userData } = await supabase
+          .from("users")
+          .select("full_name")
+          .eq("id", targetHostId)
+          .maybeSingle();
+
+        if (userData?.full_name) {
+          hostName = userData.full_name;
+        }
       }
+    } catch (profileFetchError) {
+      console.warn("Could not fetch profile full_name:", profileFetchError);
     }
 
-    // 4. Generate unique, collision-resistant room slug
+    // 5. Generate unique, collision-resistant room slug
     const roomSlug = generateRoomSlug(targetDept);
 
-    // 5. Insert record into doubt_rooms table
+    // 6. Insert record into doubt_rooms table
     const { data: roomData, error: insertError } = await supabase
       .from("doubt_rooms")
       .insert({
@@ -142,7 +158,7 @@ export async function POST(req: NextRequest) {
 
     const createdSlug = roomData?.room_slug || roomSlug;
 
-    // 6. Return standard success response
+    // 7. Return standard success response
     return NextResponse.json(
       {
         success: true,
