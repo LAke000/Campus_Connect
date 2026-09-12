@@ -1,24 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import {
   Bell,
   Sun,
   Moon,
   RefreshCw,
   Sparkles,
-  CheckCircle2,
-  GraduationCap,
-  Layers,
-  ChevronRight,
-  User,
-  Calendar,
-  BookOpen,
-  BrainCircuit,
-  Award
+  CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,13 +19,14 @@ export interface TopNavbarProps {
   className?: string;
 }
 
-const navTabs = [
-  { label: "Dashboard", href: "/" },
-  { label: "Courses", href: "/quizzes" }, // Routes to curriculum
-  { label: "Timetable", href: "/doubts" }, // Active doubt & session rooms
-  { label: "Practice Quizzes", href: "/quizzes" },
-  { label: "Digital Library", href: "/library" },
-  { label: "Results", href: "/profile" },
+const dailyQuotes = [
+  "The beautiful thing about learning is that no one can take it away from you.",
+  "Innovation distinguishes between a leader and a follower.",
+  "Education is the most powerful weapon which you can use to change the world.",
+  "The only way to do great work is to love what you do.",
+  "Live as if you were to die tomorrow. Learn as if you were to live forever.",
+  "Technology is best when it brings people together.",
+  "The future belongs to those who believe in the beauty of their dreams."
 ];
 
 export function TopNavbar({
@@ -42,10 +34,18 @@ export function TopNavbar({
   userInitials = "SV",
   className
 }: TopNavbarProps) {
-  const pathname = usePathname();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasSynced, setHasSynced] = useState(false);
+  const [quoteIndex, setQuoteIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      setQuoteIndex(new Date().getDay());
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {
@@ -103,41 +103,24 @@ export function TopNavbar({
         </div>
       </div>
 
-      {/* ── Center: Pill-Style Navigation Tabs ─────────────────── */}
-      <nav
-        aria-label="Portal Navigation"
-        className="hidden lg:flex items-center bg-[#F2F2EE] dark:bg-neutral-800/60 p-1 rounded-full border border-[#E7E7E3] dark:border-neutral-700/50"
+      {/* ── Center: Daily Quote ─────────────────────────────────── */}
+      <div
+        aria-label="Quote of the day"
+        className="hidden lg:flex min-w-0 flex-1 justify-center px-4"
       >
-        {navTabs.map((tab) => {
-          const isActive =
-            tab.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(tab.href);
-
-          return (
-            <Link
-              key={tab.label}
-              href={tab.href}
-              className={cn(
-                "relative px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer select-none",
-                isActive
-                  ? "text-[#161716] dark:text-white font-semibold"
-                  : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
-              )}
-            >
-              {/* Animated Floating Pill Glider */}
-              {isActive && (
-                <motion.div
-                  layoutId="activeHeaderNav"
-                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
-                  className="absolute inset-0 bg-white dark:bg-neutral-900 rounded-full shadow-xs border border-[#E7E7E3] dark:border-neutral-700 z-[-1]"
-                />
-              )}
-              <span>{tab.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+        <motion.div
+          key={quoteIndex ?? "initial"}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="flex min-w-0 max-w-xl items-center gap-2 text-center"
+        >
+          <Sparkles className="size-3.5 shrink-0 text-amber-500" />
+          <p className="truncate text-xs italic text-neutral-500 dark:text-neutral-400">
+            {dailyQuotes[quoteIndex ?? 0]}
+          </p>
+        </motion.div>
+      </div>
 
       {/* ── Right: Notification, Dark Toggle & LMS Sync ────────── */}
       <div className="flex items-center gap-2 shrink-0">
