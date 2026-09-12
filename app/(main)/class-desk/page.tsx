@@ -1549,7 +1549,7 @@ export default function ClassDeskPage() {
                           isMissedClass: false,
                           verifiedBy: {
                             name: "You (Scribe)",
-                            role: "Course Scribe",
+                            role: "Course Scribe" as ScribeRole,
                             section: "K23AB",
                             timestamp: "Just now",
                           },
