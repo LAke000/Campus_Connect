@@ -44,6 +44,7 @@ import {
   LabManualRecord,
   ClassLectureNote,
   CourseProgress,
+  ScribeRole,
 } from "@/types/classDesk";
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -1536,7 +1537,7 @@ export default function ClassDeskPage() {
                   </button>
                   <button 
                     onClick={() => {
-                        const newNote = {
+                        const newNote: ClassLectureNote = {
                           id: `note-${Date.now()}`,
                           courseCode: "CSE316",
                           courseName: "Operating Systems",
@@ -1548,7 +1549,7 @@ export default function ClassDeskPage() {
                           isMissedClass: false,
                           verifiedBy: {
                             name: "You (Scribe)",
-                            role: "Scribe",
+                            role: "Course Scribe",
                             section: "K23AB",
                             timestamp: "Just now",
                           },
