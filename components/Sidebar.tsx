@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 import {
   GraduationCap,
   LayoutDashboard,
@@ -24,11 +24,7 @@ import {
   Monitor,
 } from "lucide-react";
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = createClient();
 
 const learningNav = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -103,6 +99,7 @@ export function Sidebar({ className }: { className?: string }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Fetch user session and metadata
   const fetchUser = async () => {
@@ -133,11 +130,16 @@ export function Sidebar({ className }: { className?: string }) {
 
   // Handle logout
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
     try {
       await supabase.auth.signOut();
-      router.push('/login');
-    } catch (err) {
-      console.error('Logout error:', err);
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout error:", error);
+      setIsLoggingOut(false);
     }
   };
 
@@ -287,11 +289,13 @@ export function Sidebar({ className }: { className?: string }) {
           </div>
         </Link>
         <button
+          type="button"
           onClick={handleLogout}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold tracking-tight text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-950 cursor-pointer"
+          disabled={isLoggingOut}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold tracking-tight text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-950 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           <LogOut className="size-4" />
-          Log Out
+          {isLoggingOut ? "Logging out..." : "Log Out"}
         </button>
       </div>
     </aside>

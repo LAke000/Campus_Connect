@@ -1,34 +1,40 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { createClient } from "@supabase/supabase-js";
-import { GraduationCap, Mail, Orbit } from "lucide-react";
+import { motion } from "framer-motion";
+import { GraduationCap, Orbit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { createClient } from "@/lib/supabase/client";
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = createClient();
+
+type AuthMode = "sign-in" | "sign-up" | "recovery";
+
+function formatAuthError(message: string) {
+  const normalizedMessage = message.toLowerCase();
+
+  if (normalizedMessage.includes("invalid login credentials")) {
+    return "Invalid credentials. Check your email and password and try again.";
+  }
+
+  if (normalizedMessage.includes("password") && normalizedMessage.includes("6")) {
+    return "Password must be at least 6 characters.";
+  }
+
+  return message;
+}
 
 export default function LoginPage() {
-  const [currentStep, setCurrentStep] = useState<'auth' | 'otp' | 'onboarding'>('auth');
-  const [isLoginView, setIsLoginView] = useState(true);
-  const [otpCode, setOtpCode] = useState("");
-  const [pendingEmail, setPendingEmail] = useState("");
-  const [selectedRole, setSelectedRole] = useState<'Student' | 'Faculty'>('Student');
-  const [fullName, setFullName] = useState("");
-  const [registrationNumber, setRegistrationNumber] = useState("");
+  const [authMode, setAuthMode] = useState<AuthMode>("sign-in");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [countdown, setCountdown] = useState(60);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const clearMessages = () => {
@@ -36,165 +42,82 @@ export default function LoginPage() {
     setSuccessMessage("");
   };
 
-  const handleAuthStep = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const switchMode = (mode: AuthMode) => {
+    setAuthMode(mode);
+    setPassword("");
     clearMessages();
-    setIsSubmitting(true);
-
-    try {
-      const email = (e.currentTarget.elements.namedItem("email") as HTMLInputElement).value;
-
-      const { data, error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          data: { role: selectedRole },
-          shouldCreateUser: true,
-        },
-      });
-
-      if (error) {
-        setErrorMessage(error.message);
-        setIsSubmitting(false);
-        return;
-      }
-
-      setPendingEmail(email);
-      setCurrentStep('otp');
-      setCountdown(60);
-
-    } catch (err) {
-      setErrorMessage("An unexpected error occurred. Please try again.");
-      console.error("Auth step error:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
-  const handleResendOtp = async () => {
-    clearMessages();
-    setIsSubmitting(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: pendingEmail,
-        options: {
-          data: { role: selectedRole },
-          shouldCreateUser: true,
-        },
-      });
-
-      if (error) {
-        setErrorMessage(error.message);
-        return;
-      }
-
-      setSuccessMessage("Code resent successfully!");
-      setCountdown(60);
-    } catch (err) {
-      setErrorMessage("An unexpected error occurred while resending.");
-      console.error("Resend error:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleOtpStep = async (e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
-    if (e) e.preventDefault();
-    if (isSubmitting || otpCode.length !== 6) return;
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isLoading) return;
 
     clearMessages();
-    setIsSubmitting(true);
+    setIsLoading(true);
+    let isRedirecting = false;
 
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: pendingEmail,
-        token: otpCode,
-        type: 'email',
-      });
+      if (authMode === "sign-in") {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
 
-      if (error) {
-        if (error.message.includes('expired or is invalid')) {
-          const { data: signupData, error: signupError } = await supabase.auth.verifyOtp({
-            email: pendingEmail,
-            token: otpCode,
-            type: 'signup',
-          });
-          if (signupError) {
-            setErrorMessage(signupError.message);
-            setIsSubmitting(false);
-            return;
-          }
-          if (signupData.session) {
-            await supabase.auth.setSession(signupData.session);
-            setCurrentStep('onboarding');
-            setIsSubmitting(false);
-            return;
-          }
+        if (error) {
+          setErrorMessage(formatAuthError(error.message));
+          return;
         }
-        setErrorMessage(error.message);
-        setIsSubmitting(false);
+
+        if (data.session) {
+          isRedirecting = true;
+          router.refresh();
+          window.setTimeout(() => router.push("/dashboard"), 100);
+          return;
+        }
+
+        setErrorMessage("Sign in did not create a session. Please try again.");
         return;
       }
 
-      setCurrentStep('onboarding');
-    } catch (err) {
-      setErrorMessage("An unexpected error occurred. Please try again.");
-      console.error("OTP step error:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      if (authMode === "sign-up") {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email.trim(),
+        });
 
-  const handleOnboardingStep = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    clearMessages();
-    setIsSubmitting(true);
+        if (error) {
+          setErrorMessage(formatAuthError(error.message));
+          return;
+        }
 
-    try {
-      const { data: userData, error } = await supabase.auth.getUser();
-      if (error || !userData.user) {
-        setErrorMessage("Session expired. Please restart the login process.");
-        setIsSubmitting(false);
-        router.push('/login');
+        router.push(`/verify-and-set-password?email=${encodeURIComponent(email.trim())}`);
         return;
       }
 
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: {
-          full_name: fullName,
-          registration_number: registrationNumber,
-        },
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/verify-and-set-password`,
       });
 
-      if (updateError) {
-        setErrorMessage(updateError.message);
-        setIsSubmitting(false);
+      if (error) {
+        setErrorMessage(formatAuthError(error.message));
         return;
       }
 
-      router.push('/');
-    } catch (err) {
-      setErrorMessage("An unexpected error occurred. Please try again.");
-      console.error("Onboarding step error:", err);
+      setSuccessMessage("Check your email for a password reset link.");
+    } catch (error) {
+      console.error("Authentication error:", error);
+      setErrorMessage("We could not complete that request. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      if (!isRedirecting) setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (currentStep === 'otp' && countdown > 0) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [currentStep, countdown]);
+  const isPasswordMode = authMode === "sign-in";
+  const isRecoveryMode = authMode === "recovery";
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="flex min-h-screen w-full bg-slate-50"
     >
@@ -209,9 +132,9 @@ export default function LoginPage() {
             <Orbit className="h-16 w-16 text-blue-400" />
           </div>
           <div className="space-y-4">
-            <h1 className="font-extrabold text-3xl sm:text-4xl text-white tracking-tight">Welcome!</h1>
+            <h1 className="font-extrabold text-3xl sm:text-4xl text-white tracking-tight">Welcome back</h1>
             <p className="text-slate-300 text-sm md:text-base max-w-sm mx-auto leading-relaxed">
-              Connecting minds, classes, and campus workflows into a single workspace.
+              One secure sign-in for your classes, campus workflows, and academic progress.
             </p>
           </div>
         </div>
@@ -230,207 +153,105 @@ export default function LoginPage() {
         </div>
 
         <div className="w-full max-w-[400px] flex flex-col space-y-6 mt-12 lg:mt-0">
-          <AnimatePresence mode="wait">
-            {currentStep === 'auth' && (
-              <motion.div
-                key="auth"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="space-y-6 w-full"
+          <div className="space-y-2">
+            <h2 className="font-extrabold text-2xl text-slate-950 tracking-tight">
+              {isRecoveryMode ? "Set your password" : isPasswordMode ? "Sign in" : "Create your account"}
+            </h2>
+            <p className="text-sm text-slate-500">
+              {isRecoveryMode
+                ? "Enter your email and we will send a secure password reset link."
+                : isPasswordMode
+                  ? "Use your Campus Connect email and password."
+                  : "Verify your email first, then create a password."}
+            </p>
+          </div>
+
+          {!isRecoveryMode && (
+            <div className="flex bg-slate-100 p-1 rounded-md" role="tablist" aria-label="Authentication mode">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={isPasswordMode}
+                onClick={() => switchMode("sign-in")}
+                className={`flex-1 text-sm font-semibold py-2 rounded-sm transition-colors ${isPasswordMode ? "bg-white shadow-sm text-slate-950 border border-slate-200" : "text-slate-500 hover:text-slate-900"}`}
               >
-                <div className="space-y-2">
-                  <h2 className="font-extrabold text-2xl text-slate-950 tracking-tight">
-                    {isLoginView ? "Log In" : "Create Account"}
-                  </h2>
-                  <p className="text-sm text-slate-500">
-                    {isLoginView ? "Enter your email to sign in to your account." : "Choose your role and enter your email to get started."}
-                  </p>
-                </div>
-
-                {!isLoginView && (
-                  <motion.div layout className="flex bg-slate-100 p-1 rounded-md">
-                    {['Student', 'Faculty'].map((role) => (
-                      <motion.button
-                        key={role}
-                        type="button"
-                        onClick={() => setSelectedRole(role as 'Student' | 'Faculty')}
-                        layout
-                        whileTap={{ scale: 0.95 }}
-                        whileHover={{ scale: 1.02 }}
-                        className={`flex-1 text-xs font-semibold py-2 rounded-sm transition-all duration-300 ${selectedRole === role
-                            ? "bg-white shadow-sm text-slate-950 border border-slate-200"
-                            : "text-slate-500 hover:text-slate-900"
-                          }`}
-                      >
-                        {role}
-                      </motion.button>
-                    ))}
-                  </motion.div>
-                )}
-
-                <form className="space-y-4" onSubmit={handleAuthStep}>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-xs font-semibold text-slate-700">Email address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder={selectedRole === 'Student' || isLoginView ? "student@college.edu" : "faculty@college.edu"}
-                      className="bg-white border border-slate-200 rounded-md focus-visible:border-slate-900 focus-visible:ring-1 focus-visible:ring-slate-900 h-11"
-                      required
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full bg-slate-950 hover:bg-slate-800 text-white h-11 font-semibold shadow-sm transition-colors"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Sending code..." : "Continue"}
-                  </Button>
-                </form>
-
-                <div className="text-center mt-6">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsLoginView(!isLoginView);
-                      clearMessages();
-                    }}
-                    className="text-sm text-slate-500 hover:text-slate-950 font-medium transition-colors cursor-pointer hover:underline outline-none"
-                  >
-                    {isLoginView ? "Don't have an account? Sign up" : "Already have an account? Log in"}
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {currentStep === 'otp' && (
-              <motion.div
-                key="otp"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="space-y-6 w-full"
+                Sign In
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={!isPasswordMode}
+                onClick={() => switchMode("sign-up")}
+                className={`flex-1 text-sm font-semibold py-2 rounded-sm transition-colors ${!isPasswordMode ? "bg-white shadow-sm text-slate-950 border border-slate-200" : "text-slate-500 hover:text-slate-900"}`}
               >
-                <div className="space-y-2 mt-4">
-                  <h2 className="font-extrabold text-2xl text-slate-950 tracking-tight">Check your email</h2>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    We sent a 6-digit verification code to{" "}
-                    <span className="font-medium text-slate-950">{pendingEmail}</span>.
-                  </p>
-                </div>
-
-                <form className="space-y-4" onSubmit={handleOtpStep}>
-                  <div className="space-y-2">
-                    <Input
-                      id="otp"
-                      type="text"
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="text-center tracking-[1em] font-mono text-2xl font-bold bg-white border border-slate-200 rounded-md focus-visible:border-slate-900 focus-visible:ring-1 focus-visible:ring-slate-900 h-14 uppercase"
-                      required
-                      autoFocus
-                    />
-                  </div>
-
-                  <Button
-                    type="button"
-                    onClick={handleOtpStep}
-                    className="w-full bg-slate-950 hover:bg-slate-800 text-white h-11 font-semibold shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={isSubmitting || otpCode.length !== 6}
-                  >
-                    {isSubmitting ? "Verifying..." : "Verify Code"}
-                  </Button>
-
-                  <div className="text-center mt-6">
-                    {countdown > 0 ? (
-                      <span className="text-slate-500 text-sm font-medium">
-                        Resend code in {countdown}s
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleResendOtp}
-                        className="text-slate-950 font-semibold hover:underline text-sm transition-all"
-                      >
-                        Didn't receive it? Resend code
-                      </button>
-                    )}
-                  </div>
-                </form>
-              </motion.div>
-            )}
-
-            {currentStep === 'onboarding' && (
-              <motion.div
-                key="onboarding"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="space-y-6 w-full"
-              >
-                <div className="space-y-2">
-                  <h2 className="font-extrabold text-2xl text-slate-950 tracking-tight">Complete Your Profile</h2>
-                  <p className="text-sm text-slate-500">
-                    Add your full name and registration number to finish setting up your account.
-                  </p>
-                </div>
-
-                <form className="space-y-4" onSubmit={handleOnboardingStep}>
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-xs font-semibold text-slate-700">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="John Doe"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="bg-white border border-slate-200 rounded-md focus-visible:border-slate-900 focus-visible:ring-1 focus-visible:ring-slate-900 h-11"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="registrationNumber" className="text-xs font-semibold text-slate-700">Registration Number</Label>
-                    <Input
-                      id="registrationNumber"
-                      type="text"
-                      placeholder="BTech CSE 2025123456"
-                      value={registrationNumber}
-                      onChange={(e) => setRegistrationNumber(e.target.value)}
-                      className="bg-white border border-slate-200 rounded-md focus-visible:border-slate-900 focus-visible:ring-1 focus-visible:ring-slate-900 h-11"
-                      required
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full bg-slate-950 hover:bg-slate-800 text-white h-11 font-semibold shadow-sm transition-colors"
-                    disabled={isSubmitting || !fullName || !registrationNumber}
-                  >
-                    {isSubmitting ? "Setting up your account..." : "Complete Setup"}
-                  </Button>
-                </form>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {errorMessage && (
-            <div className="text-red-600 text-sm font-medium text-center mt-3">
-              {errorMessage}
+                Sign Up
+              </button>
             </div>
           )}
 
-          {successMessage && (
-            <div className="text-emerald-600 text-sm font-medium text-center mt-3">
-              {successMessage}
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-xs font-semibold text-slate-700">Email address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="bg-white border border-slate-200 rounded-md focus-visible:border-slate-900 focus-visible:ring-1 focus-visible:ring-slate-900 h-11"
+                autoComplete="email"
+                required
+                disabled={isLoading}
+              />
             </div>
+
+            {isPasswordMode && (
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-xs font-semibold text-slate-700">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="bg-white border border-slate-200 rounded-md focus-visible:border-slate-900 focus-visible:ring-1 focus-visible:ring-slate-900 h-11"
+                  autoComplete="current-password"
+                  minLength={6}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full bg-slate-950 hover:bg-slate-800 text-white h-11 font-semibold shadow-sm transition-colors"
+              disabled={isLoading || !email.trim() || (isPasswordMode && !password)}
+            >
+              {isLoading ? "Working..." : isRecoveryMode ? "Send reset link" : isPasswordMode ? "Sign in" : "Continue with email"}
+            </Button>
+          </form>
+
+          {isPasswordMode && (
+            <button
+              type="button"
+              onClick={() => switchMode("recovery")}
+              className="text-sm text-slate-500 hover:text-slate-950 font-medium transition-colors cursor-pointer hover:underline"
+            >
+              Forgot or need to set your password?
+            </button>
           )}
+
+          {isRecoveryMode && (
+            <button
+              type="button"
+              onClick={() => switchMode("sign-in")}
+              className="text-sm text-slate-500 hover:text-slate-950 font-medium transition-colors cursor-pointer hover:underline"
+            >
+              Back to sign in
+            </button>
+          )}
+
+          {errorMessage && <p className="text-red-600 text-sm font-medium text-center" role="alert">{errorMessage}</p>}
+          {successMessage && <p className="text-emerald-600 text-sm font-medium text-center" role="status">{successMessage}</p>}
         </div>
       </div>
     </motion.div>
