@@ -6,22 +6,27 @@
 
 import type { Transition, Variants } from "motion/react";
 
+// ── Physical spring presets ─────────────────────────────────
+
+export const springPresets = {
+  // Snappy layout transitions
+  snappy: { type: "spring", stiffness: 500, damping: 40, mass: 1 },
+  // Smooth tab indicator glide
+  glide: { type: "spring", stiffness: 380, damping: 32 },
+  // Subtle card hover response
+  tactile: { type: "spring", stiffness: 400, damping: 25 },
+} as const;
+
 // ── Spring Presets ───────────────────────────────────────────
 
 /** Snappy interactive feedback (buttons, toggles) */
 export const springSnap: Transition = {
-  type: "spring",
-  stiffness: 500,
-  damping: 30,
-  mass: 0.8,
+  ...springPresets.snappy,
 };
 
 /** Smooth entrance for cards & panels */
 export const springSmooth: Transition = {
-  type: "spring",
-  stiffness: 260,
-  damping: 25,
-  mass: 1,
+  ...springPresets.glide,
 };
 
 /** Gentle float for modals & dialogs */
@@ -34,10 +39,7 @@ export const springGentle: Transition = {
 
 /** Quick micro-interaction (icon rotations, check marks) */
 export const springMicro: Transition = {
-  type: "spring",
-  stiffness: 400,
-  damping: 20,
-  mass: 0.5,
+  ...springPresets.tactile,
 };
 
 // ── Duration Presets (for non-spring tweens) ─────────────────

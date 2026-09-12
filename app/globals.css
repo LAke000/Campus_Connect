@@ -5,42 +5,41 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #F9F9F8;
-  --foreground: #1C1D1F;
+  --background: #F8F8F6;
+  --foreground: #161716;
   --card: #FFFFFF;
-  --card-foreground: #1C1D1F;
+  --card-foreground: #161716;
   --popover: #FFFFFF;
-  --popover-foreground: #1C1D1F;
-  --primary: #1C1D1F;
-  --primary-foreground: #F9F9F8;
-  --secondary: #F4F4F1;
-  --secondary-foreground: #1C1D1F;
-  --muted: #F4F4F1;
-  --muted-foreground: #6E7175;
-  --accent: #4E5952;
+  --popover-foreground: #161716;
+  --primary: #2F3B34;
+  --primary-foreground: #F8F8F6;
+  --secondary: #F2F2EE;
+  --secondary-foreground: #161716;
+  --muted: #F2F2EE;
+  --muted-foreground: #737573;
+  --accent: #2F3B34;
   --accent-foreground: #FFFFFF;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #E5E5E0;
-  --input: #E5E5E0;
-  --ring: #1C1D1F;
-  --sage-primary: #4E5952;
-  --sage-secondary: #606C5D;
-  --sage-tint: #7D8B7D;
+  --destructive: #B91C1C;
+  --border: #E7E7E3;
+  --input: #E7E7E3;
+  --ring: #2F3B34;
+  --slate-primary: #2F3B34;
+  --slate-secondary: #3B443F;
   --radius: 0.75rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
   --font-heading: var(--font-sans);
-  --color-sage: #4E5952;
-  --color-sage-dark: #3F4943;
-  --color-sage-light: #606C5D;
-  --color-graphite: #1C1D1F;
-  --color-stone-bg: #F9F9F8;
-  --color-stone-muted: #F4F4F1;
+  --color-slate-green: #2F3B34;
+  --color-slate-dark: #242D28;
+  --color-slate-light: #3B443F;
+  --color-graphite: #161716;
+  --color-parchment: #F8F8F6;
+  --color-hairline: #E7E7E3;
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -57,27 +56,28 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: calc(var(--radius) * 1.33);
+  --radius-2xl: calc(var(--radius) * 1.66);
+  --radius-3xl: calc(var(--radius) * 2.0);
+  --radius-4xl: calc(var(--radius) * 2.33);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #141415;
-    --foreground: #F6F6F4;
-    --card: #1C1D1F;
-    --card-foreground: #F6F6F4;
-    --border: #2A2B2E;
-    --input: #2A2B2E;
-    --muted: #242528;
-    --muted-foreground: #8E9094;
+    --background: #111211;
+    --foreground: #F4F4F2;
+    --card: #181918;
+    --card-foreground: #F4F4F2;
+    --border: #262726;
+    --input: #262726;
+    --muted: #1F201F;
+    --muted-foreground: #8B8D8B;
   }
 }
+
 
 body {
   background: var(--background);

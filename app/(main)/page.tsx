@@ -29,11 +29,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { StudentHeroPulse } from "@/components/StudentHeroPulse";
-import { DailyAcademicDeck } from "@/components/DailyAcademicDeck";
+import { AcademicHeroTerminal } from "@/components/AcademicHeroTerminal";
+import { DailyOperationsDeck } from "@/components/DailyOperationsDeck";
 import { SemesterRoadmap } from "@/components/SemesterRoadmap";
 import { StudentUtilitiesRow } from "@/components/StudentUtilitiesRow";
 import { AcademicHealthBlock } from "@/components/AcademicHealthBlock";
+
+
 
 
 // Initialize Supabase client
@@ -155,28 +157,29 @@ export default function DashboardPage() {
       animate="show"
       className="space-y-6 select-none"
     >
-      {/* ── 1. Hero Header Pulse Component (Ethan Cole Reference) ── */}
+      {/* ── 1. Academic Command Center Hero Terminal ────────── */}
       <motion.div variants={itemVariants}>
-        <StudentHeroPulse
+        <AcademicHeroTerminal
           studentName={getUserDisplayName()}
-          registrationNumber={getUserRegNumber()}
+          programTitle="B.Tech CSE (AI & Data Engineering)"
           section="Section K22CS"
-          degree={getUserDepartment()}
-          university="LPU"
-          session="Academic Session 2026–2027 · Semester 5"
-          focusLine="Specializing in AI & Machine Learning · Focus on Distributed Systems & Algorithmic Problem Solving"
-          academicStanding="Academic Status: Excellent Standing (Dean's List Eligible)"
-          mentorGroup="Capstone Group 14"
-          location="Block 34 · Room 402 · Active Now"
+          rollNumber={`Roll #${getUserRegNumber().slice(-2) || "42"}`}
+          syncTime="UMS Synced 4m ago"
+          gpa="8.94 / 10.0"
+          attendance="89.2% (Safe Margin: +8 Lectures)"
+          credits="94 / 160"
+          sessionEyebrow="ACADEMIC CONTEXT · SEMESTER V (AUTUMN 2026)"
+          campusLocation="Active on Campus · Uni-Mall Hub · Library Stacks Floor 3"
         />
       </motion.div>
 
-      {/* ── 2. Today's Academic Priority Deck (4-Column Structured Deck) ── */}
+      {/* ── 2. Live Daily Operations Deck (4-Column High-Utility Deck) ── */}
       <motion.section variants={itemVariants}>
-        <DailyAcademicDeck />
+        <DailyOperationsDeck />
       </motion.section>
 
       {/* ── 3. Semester Milestones Roadmap (5-Stage Connected Progress Line) ── */}
+
       <motion.section variants={itemVariants}>
         <SemesterRoadmap currentWeek={8} totalWeeks={14} />
       </motion.section>
@@ -198,15 +201,12 @@ export default function DashboardPage() {
       </motion.section>
 
       {/* ── 6. Main Activity Feed & Enrolled Disciplines ───────── */}
-
-
-
-      <motion.section variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <motion.section variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left Feed: Enrolled Course Modules (7 cols) */}
-        <div className="lg:col-span-7 bg-white dark:bg-neutral-900 rounded-[28px] border border-neutral-200/80 dark:border-neutral-800 p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-5">
+        <div className="lg:col-span-7 bg-white dark:bg-neutral-900 rounded-[28px] border border-[#E7E7E3] dark:border-neutral-800 p-6 sm:p-7 shadow-[0_2px_16px_rgba(0,0,0,0.02)] space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-[#1C1D1F] dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-semibold text-[#161716] dark:text-white tracking-tight">
                 Prescribed Semester Curriculum (Year 2)
               </h2>
               <p className="text-xs text-neutral-500 font-mono mt-0.5">
@@ -215,14 +215,14 @@ export default function DashboardPage() {
             </div>
             <Link
               href="/quizzes"
-              className="text-xs font-semibold text-[#4E5952] dark:text-neutral-300 hover:text-neutral-900 flex items-center gap-1"
+              className="text-xs font-medium text-[#2F3B34] dark:text-neutral-300 hover:text-[#161716] flex items-center gap-1"
             >
               <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {[
               {
                 code: "CSE205",
@@ -259,14 +259,14 @@ export default function DashboardPage() {
             ].map((course) => (
               <div
                 key={course.code}
-                className="p-4 rounded-xl border border-neutral-200/70 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 hover:bg-white dark:hover:bg-neutral-800 hover:border-neutral-300 transition-all flex items-center justify-between gap-4"
+                className="p-3.5 rounded-xl border border-[#E7E7E3] dark:border-neutral-800 bg-[#F8F8F6] dark:bg-neutral-800/40 hover:bg-white dark:hover:bg-neutral-800 transition-all flex items-center justify-between gap-4"
               >
-                <div className="min-w-0 flex-1 space-y-1">
+                <div className="min-w-0 flex-1 space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white dark:bg-neutral-700 text-[#161716] dark:text-neutral-200 border border-[#E7E7E3] dark:border-neutral-600">
                       {course.code}
                     </span>
-                    <span className="text-xs font-bold text-[#1C1D1F] dark:text-white truncate">
+                    <span className="text-xs font-semibold text-[#161716] dark:text-white truncate">
                       {course.name}
                     </span>
                   </div>
@@ -280,7 +280,7 @@ export default function DashboardPage() {
                   {course.activeCBT ? (
                     <Link
                       href="/quizzes"
-                      className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold text-[11px] border border-emerald-200/80 hover:bg-emerald-100 transition-colors"
+                      className="px-2.5 py-1 rounded bg-[#2F3B34] text-white font-medium text-[11px] hover:bg-[#242D28] transition-colors"
                     >
                       Take Quiz
                     </Link>
@@ -294,11 +294,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Feed: Study Desk & Reading Log (5 cols) */}
-        <div className="lg:col-span-5 bg-white dark:bg-neutral-900 rounded-[28px] border border-neutral-200/80 dark:border-neutral-800 p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col justify-between space-y-5">
-          <div className="space-y-4">
+        <div className="lg:col-span-5 bg-white dark:bg-neutral-900 rounded-[28px] border border-[#E7E7E3] dark:border-neutral-800 p-6 sm:p-7 shadow-[0_2px_16px_rgba(0,0,0,0.02)] flex flex-col justify-between space-y-4">
+          <div className="space-y-3.5">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-[#1C1D1F] dark:text-white tracking-tight">
+                <h2 className="text-base sm:text-lg font-semibold text-[#161716] dark:text-white tracking-tight">
                   Study Desk & Reading Log
                 </h2>
                 <p className="text-xs text-neutral-500 font-mono mt-0.5">
@@ -307,14 +307,14 @@ export default function DashboardPage() {
               </div>
               <Link
                 href="/library"
-                className="text-xs font-semibold text-[#4E5952] dark:text-neutral-300 hover:text-neutral-900 flex items-center gap-1"
+                className="text-xs font-medium text-[#2F3B34] dark:text-neutral-300 hover:text-[#161716] flex items-center gap-1"
               >
                 <span>Library</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {[
                 {
                   title: "Introduction to Algorithms (CLRS)",
@@ -340,13 +340,13 @@ export default function DashboardPage() {
               ].map((book) => (
                 <div
                   key={book.title}
-                  className="p-3.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 space-y-2"
+                  className="p-3 rounded-xl border border-[#E7E7E3] dark:border-neutral-800 bg-[#F8F8F6] dark:bg-neutral-800/40 space-y-1.5"
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-[#1C1D1F] dark:text-white truncate max-w-[200px]">
+                    <span className="font-semibold text-[#161716] dark:text-white truncate max-w-[200px]">
                       {book.title}
                     </span>
-                    <span className="font-mono text-[11px] font-bold text-neutral-700 dark:text-neutral-300">
+                    <span className="font-mono text-[11px] font-medium text-neutral-700 dark:text-neutral-300">
                       {book.progress}%
                     </span>
                   </div>
@@ -354,12 +354,12 @@ export default function DashboardPage() {
                   {/* Progress bar */}
                   <div className="w-full h-1 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#4E5952] dark:bg-neutral-300 rounded-full"
+                      className="h-full bg-[#2F3B34] dark:bg-neutral-300 rounded-full"
                       style={{ width: `${book.progress}%` }}
                     />
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-neutral-400 font-mono">
+                  <div className="flex items-center justify-between text-[11px] text-neutral-500 font-mono">
                     <span>{book.author}</span>
                     <span>{book.shelf}</span>
                   </div>
@@ -368,11 +368,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-xs text-neutral-500">
+          <div className="pt-3 border-t border-[#E7E7E3] dark:border-neutral-800 flex items-center justify-between text-xs text-neutral-500">
             <span className="font-mono">Central Library Level 4 Section A</span>
             <Link
               href="/library"
-              className="font-semibold text-neutral-900 dark:text-white hover:underline"
+              className="font-medium text-[#161716] dark:text-white hover:underline"
             >
               Open E-Vault
             </Link>
@@ -382,4 +382,5 @@ export default function DashboardPage() {
     </motion.div>
   );
 }
+
 
