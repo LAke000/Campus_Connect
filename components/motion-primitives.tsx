@@ -92,3 +92,8 @@ export function MotionPage({ children, ...props }: MotionCardProps) {
     </motion.div>
   );
 }
+
+// ── ScrollContainer ──────────────────────────────────────────
+// Reusable rubber-band overscroll container.
+export { ScrollContainer } from "./ScrollContainer";
+

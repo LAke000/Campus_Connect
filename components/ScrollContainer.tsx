@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, useMotionValue, animate, type Transition } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 export interface ScrollContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -238,6 +239,22 @@ export function ScrollContainer({
       if (wheelIdleTimeoutRef.current) clearTimeout(wheelIdleTimeoutRef.current);
     };
   }, [mappedRubberBand, reverseMapRubberBand, snapBack, stopActiveAnimation, overscrollY]);
+
+  // ── Fix for Route Change Rendering Bug ──
+  // Resets overscroll state and forces repaint on route changes
+  const pathname = usePathname();
+  useEffect(() => {
+    // Reset the scroll position to eliminate visual freezing on route changes
+    overscrollY.set(0);
+    
+    // Force a repaint to ensure new content renders immediately
+    // This triggers a layout reflow which forces the browser to paint
+    const scrollEvent = new Event('scroll');
+    window.dispatchEvent(scrollEvent);
+    
+    // Force DOM reflow by reading a layout property
+    void document.body.offsetHeight;
+  }, [pathname, overscrollY]);
 
   return (
     <div

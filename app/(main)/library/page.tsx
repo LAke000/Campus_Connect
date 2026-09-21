@@ -115,11 +115,11 @@ export default function LibraryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24">
+    <div className="min-h-screen bg-slate-50 dark:bg-transparent text-slate-900 dark:text-white pb-24">
       {/* ── 1. Hero Showcase with Radial Book Wheel ─────────────── */}
-      <section className="bg-white rounded-[28px] border border-neutral-200/80 shadow-xs relative overflow-hidden mb-6 mx-4 sm:mx-6 lg:mx-8 mt-2">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs relative overflow-hidden mb-6 mt-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
             {/* Left Column: Synced Active Book Information Panel */}
             <div className="lg:col-span-6 xl:col-span-5 z-10 flex flex-col justify-center h-full">
               <ActiveBookDetail
@@ -132,7 +132,7 @@ export default function LibraryPage() {
             </div>
 
             {/* Right Column: Dynamic Radial 3D Book Wheel */}
-            <div className="lg:col-span-6 xl:col-span-7 flex items-center justify-center relative min-h-[460px] sm:min-h-[520px]">
+            <div className="lg:col-span-6 xl:col-span-7 flex items-center justify-center relative min-h-[360px] sm:min-h-[460px] md:min-h-[520px]">
               <RotatingBookWheel
                 books={featuredBooks}
                 activeIndex={activeBookIndex}
@@ -147,8 +147,8 @@ export default function LibraryPage() {
       </section>
 
       {/* ── 2. Library Infrastructure Features Strip ───────────── */}
-      <section className="bg-white rounded-[28px] border border-neutral-200/80 shadow-xs mb-6 mx-4 sm:mx-6 lg:mx-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-neutral-100 text-xs">
+      <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs mb-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-neutral-100 dark:divide-neutral-800 text-xs">
           <div className="p-5 sm:p-6 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
               <ScanLine className="w-5 h-5" />

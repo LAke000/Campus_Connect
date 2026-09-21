@@ -63,10 +63,10 @@ function NavItem({
     <Link
       href={href}
       className={cn(
-        "group flex items-center justify-between px-3 py-2 text-sm transition-colors outline-none",
+        "group flex min-h-[42px] items-center justify-between rounded-xl px-3.5 py-2.5 text-sm transition-all outline-none active:scale-[0.98] select-none",
         active
-          ? "border-l-4 border-slate-950 bg-slate-100 font-bold text-slate-950"
-          : "border-l-4 border-transparent font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+          ? "bg-slate-950 text-white font-bold shadow-xs dark:bg-white dark:text-slate-950"
+          : "text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-950 dark:hover:text-white"
       )}
     >
       <div className="flex items-center gap-3 min-w-0">
@@ -74,14 +74,21 @@ function NavItem({
           className={cn(
             "size-4 shrink-0 transition-colors",
             active
-              ? "text-slate-950"
-              : "text-slate-400 group-hover:text-slate-600",
+              ? "text-white dark:text-slate-950"
+              : "text-slate-400 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300",
           )}
         />
         <span className="tracking-tight truncate">{label}</span>
       </div>
       {badge && (
-        <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-amber-800">
+        <span
+          className={cn(
+            "rounded px-1.5 py-0.5 font-mono text-[9px] font-semibold",
+            active
+              ? "bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-950"
+              : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+          )}
+        >
           {badge}
         </span>
       )}
@@ -248,30 +255,30 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "flex h-full w-64 flex-col bg-white border-r border-slate-200",
+        "flex h-full w-full lg:w-64 flex-col bg-white dark:bg-neutral-900 border-r border-slate-200 dark:border-neutral-800",
         className,
       )}
     >
       {/* ── Brand Header ────────────────────────── */}
       <div className="flex items-center gap-3 px-5 py-5">
-        <GraduationCap className="size-6 text-slate-950 shrink-0" />
+        <GraduationCap className="size-6 text-slate-950 dark:text-white shrink-0" />
         <div>
-          <h1 className="text-base font-semibold tracking-tight text-slate-950 leading-tight">
+          <h1 className="text-base font-semibold tracking-tight text-slate-950 dark:text-white leading-tight">
             CampusConnect
           </h1>
-          <p className="font-mono text-[10px] font-medium tracking-wider text-slate-500 uppercase mt-0.5">
-            Scaler SST
+          <p className="font-mono text-[10px] font-medium tracking-wider text-slate-500 dark:text-neutral-400 uppercase mt-0.5">
+            LPU Academic Hub
           </p>
         </div>
       </div>
 
-      <Separator className="bg-slate-100" />
+      <Separator className="bg-slate-100 dark:bg-neutral-800" />
 
       {/* ── Navigation ──────────────────────────── */}
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+      <nav className="flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-4">
         {/* Learning Group */}
         <div className="flex flex-col gap-1">
-          <p className="mb-2 px-3 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <p className="mb-1.5 px-3 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-neutral-500">
             Learning
           </p>
           {learningNav.map((item) => (
@@ -287,11 +294,11 @@ export function Sidebar({ className }: { className?: string }) {
 
         {/* Experimental Features Group */}
         <div className="flex flex-col gap-1">
-          <div className="mb-2 flex items-center justify-between px-3">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <div className="mb-1.5 flex items-center justify-between px-3">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-neutral-500">
               Experimental Features
             </p>
-            <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-amber-800">
+            <span className="rounded bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-amber-800 dark:text-amber-300">
               LABS
             </span>
           </div>
@@ -310,7 +317,7 @@ export function Sidebar({ className }: { className?: string }) {
         {/* Campus Group (Faculty Only) */}
         {getUserRole() === 'faculty' && (
           <div className="flex flex-col gap-1">
-            <p className="mb-2 px-3 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            <p className="mb-1.5 px-3 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-neutral-500">
               Campus
             </p>
             {campusNav.map((item) => (
@@ -326,22 +333,22 @@ export function Sidebar({ className }: { className?: string }) {
         )}
       </nav>
 
-      <Separator className="bg-slate-100" />
+      <Separator className="bg-slate-100 dark:bg-neutral-800" />
 
       {/* ── Profile Footer ────────────────────────── */}
       <div className="p-4">
         <Link
           href="/profile"
-          className="group flex items-center gap-3 rounded-md border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50"
+          className="group flex items-center gap-3 rounded-xl border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3 shadow-xs transition-all hover:border-slate-300 dark:hover:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-800 active:scale-[0.98]"
         >
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors group-hover:bg-slate-200 group-hover:text-slate-900">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 transition-colors group-hover:bg-slate-200 dark:group-hover:bg-neutral-700 group-hover:text-slate-900 dark:group-hover:text-white">
             <User className="size-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold tracking-tight text-slate-950">
+            <p className="truncate text-sm font-semibold tracking-tight text-slate-950 dark:text-white">
               {getUserDisplayName()}
             </p>
-            <p className="font-mono text-[10px] uppercase text-slate-500 tracking-wider mt-0.5">
+            <p className="font-mono text-[10px] uppercase text-slate-500 dark:text-neutral-400 tracking-wider mt-0.5 truncate">
               B.TECH CSE · REG: {getUserRegistrationNumber()}
             </p>
           </div>
@@ -350,7 +357,7 @@ export function Sidebar({ className }: { className?: string }) {
           type="button"
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold tracking-tight text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-950 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 py-2.5 text-sm font-semibold tracking-tight text-slate-700 dark:text-neutral-300 shadow-xs transition-all hover:bg-slate-50 dark:hover:bg-neutral-800 hover:text-slate-950 dark:hover:text-white active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           <LogOut className="size-4" />
           {isLoggingOut ? "Logging out..." : "Log Out"}

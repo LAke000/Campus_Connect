@@ -116,12 +116,12 @@ export function LiveClockAndCalendar() {
 
         {/* Live Monospace Clock with Pulsing Colon */}
         <div className="flex items-baseline pt-1">
-          <div className="font-mono text-3xl font-bold tracking-tight text-slate-900 dark:text-white tabular-nums flex items-center">
+          <div className="font-mono text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white tabular-nums flex items-center">
             <span>{hours}</span>
             <span className="animate-pulse text-slate-400 dark:text-slate-500 mx-0.5">:</span>
             <span>{minutes}</span>
             <span className="animate-pulse text-slate-400 dark:text-slate-500 mx-0.5">:</span>
-            <span className="text-slate-600 dark:text-slate-300 text-2xl">{seconds}</span>
+            <span className="text-slate-600 dark:text-slate-300 text-xl sm:text-2xl">{seconds}</span>
           </div>
 
           {/* AM / PM Indicator Chip */}
@@ -150,7 +150,7 @@ export function LiveClockAndCalendar() {
               type="button"
               aria-label="Previous month"
               onClick={() => setCurrentMonthDate(new Date(year, month - 1, 1))}
-              className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer active:scale-90"
             >
               <ChevronLeft className="size-3.5" />
             </button>
@@ -158,7 +158,7 @@ export function LiveClockAndCalendar() {
               type="button"
               aria-label="Next month"
               onClick={() => setCurrentMonthDate(new Date(year, month + 1, 1))}
-              className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer active:scale-90"
             >
               <ChevronRight className="size-3.5" />
             </button>
@@ -179,7 +179,7 @@ export function LiveClockAndCalendar() {
         {/* Month Dates Grid */}
         <div className="grid grid-cols-7 gap-1 text-center text-xs">
           {leadingBlanks.map((b) => (
-            <div key={`blank-${b}`} className="h-7 w-7" />
+            <div key={`blank-${b}`} className="size-7 sm:size-8" />
           ))}
 
           {daysArray.map((dayNum) => {
@@ -192,10 +192,10 @@ export function LiveClockAndCalendar() {
                 key={`day-${dayNum}`}
                 type="button"
                 onClick={() => setSelectedDay(dayNum)}
-                className="relative flex flex-col items-center justify-center h-7 w-7 mx-auto group cursor-pointer transition-transform hover:scale-105"
+                className="relative flex flex-col items-center justify-center size-7 sm:size-8 mx-auto group cursor-pointer transition-transform hover:scale-105 active:scale-95"
               >
                 <span
-                  className={`flex size-6 items-center justify-center rounded-full text-xs font-medium transition-all ${
+                  className={`flex size-6 sm:size-7 items-center justify-center rounded-full text-xs font-medium transition-all ${
                     today
                       ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950 font-bold shadow-xs scale-105"
                       : isSelected
