@@ -31,11 +31,14 @@ const supabase = createClient();
 
 const learningNav = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Class Desk", href: "/class-desk", icon: CalendarCheck },
   { label: "Campus Locator", href: "/campus-locator", icon: Compass },
   { label: "Doubt Sessions", href: "/doubts", icon: Video },
   { label: "Practice Quizzes", href: "/quizzes", icon: BrainCircuit },
   { label: "Digital Library", href: "/library", icon: Library },
+];
+
+const experimentalNav = [
+  { label: "Class Desk", href: "/class-desk", icon: CalendarCheck, badge: "BETA" },
 ];
 
 const campusNav = [
@@ -48,31 +51,40 @@ function NavItem({
   icon: Icon,
   label,
   active,
+  badge,
 }: {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   active: boolean;
+  badge?: string;
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        "group flex items-center gap-3 px-3 py-2 text-sm transition-colors outline-none",
+        "group flex items-center justify-between px-3 py-2 text-sm transition-colors outline-none",
         active
           ? "border-l-4 border-slate-950 bg-slate-100 font-bold text-slate-950"
           : "border-l-4 border-transparent font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-950"
       )}
     >
-      <Icon
-        className={cn(
-          "size-4 shrink-0 transition-colors",
-          active
-            ? "text-slate-950"
-            : "text-slate-400 group-hover:text-slate-600",
-        )}
-      />
-      <span className="tracking-tight">{label}</span>
+      <div className="flex items-center gap-3 min-w-0">
+        <Icon
+          className={cn(
+            "size-4 shrink-0 transition-colors",
+            active
+              ? "text-slate-950"
+              : "text-slate-400 group-hover:text-slate-600",
+          )}
+        />
+        <span className="tracking-tight truncate">{label}</span>
+      </div>
+      {badge && (
+        <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-amber-800">
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }
@@ -268,6 +280,28 @@ export function Sidebar({ className }: { className?: string }) {
               href={item.href}
               icon={item.icon}
               label={item.label}
+              active={pathname === item.href}
+            />
+          ))}
+        </div>
+
+        {/* Experimental Features Group */}
+        <div className="flex flex-col gap-1">
+          <div className="mb-2 flex items-center justify-between px-3">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              Experimental Features
+            </p>
+            <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-amber-800">
+              LABS
+            </span>
+          </div>
+          {experimentalNav.map((item) => (
+            <NavItem
+              key={item.href}
+              href={item.href}
+              icon={item.icon}
+              label={item.label}
+              badge={item.badge}
               active={pathname === item.href}
             />
           ))}
