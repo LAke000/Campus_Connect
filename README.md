@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎓 Campus Connect
+# 🎓 Campus Connect - Centralized Academic Support System
 
 **A centralized academic and campus support platform designed to streamline student-faculty connectivity, resource discovery, and peer learning.**
 
@@ -18,21 +18,33 @@
 
 <br />
 
-<!-- Replace this image link with a screenshot or GIF of your actual app -->
-<img src="https://via.placeholder.com/1000x500.png?text=✨+Add+a+Screenshot+or+GIF+of+Campus+Connect+Here+✨" alt="Campus Connect Dashboard" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+<!-- ⚠️ IMPORTANT: Replace this image link with actual screenshots of your working modules (quizzes, digital library, class archives) before submission -->
+<img src="https://via.placeholder.com/1000x500.png?text=✨+Add+Screenshots+of+Campus+Connect+Modules+Here+✨" alt="Campus Connect Dashboard" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
 
 </div>
 
 ---
 
-## 📌 Features
+## 🎯 Problem Statement & Solution
 
-*   🗺️ **Campus Locator & Desks:** Interactive map layout for locating lecture halls and faculty cabins.
-*   📅 **Faculty Cabin Connect:** Real-time walk-in scheduling and availability tracking.
-*   📚 **Academic Resource Hub:** Central repository for missed-lecture notes and digital resources.
-*   🤝 **Peer Mentorship:** Integrated study sessions and practice quiz modules.
+**The Problem:** 
+On large campuses, students frequently struggle to resolve immediate academic or non-academic issues due to fragmented communication channels. Whether it is finding a professor during their free time, catching up on missed class notes, accessing reliable practice materials before exams, or finding guided project opportunities, the resources are scattered, making it difficult for students to maximize their learning potential.
+
+**The Solution:** 
+Campus Connect is a unified web platform that bridges the gap between students, peers, and faculty. It centralizes the academic experience by providing an integrated digital library for course notes, dynamic practice sessions, and a real-time tracking system for faculty availability. By introducing live mentorship features, curated project statements for high-achieving students, and directories for active clubs, the platform cultivates a highly accessible, collaborative, and self-sufficient campus ecosystem.
 
 ---
+
+## 📌 Features
+
+* 📚 **Academic Resource Hub:** Central digital library containing year-wise notes, missed-lecture archives, and specific course materials.
+* 📝 **Practice Sessions:** Dynamic quiz modules (MCQs, subjective, and mixed) for targeted subject revision.
+* 💡 **Project & Innovation Hub:** Curated sample projects, unsolved problem statements, and scoreboards to challenge "golden mindset" students.
+* 🏫 **Exam Prep & Clubs:** Pre-exam tuition class system to clear doubts and a directory of active campus clubs for extracurricular learning.
+* 🗺️ **Campus Locator & Desks:** Interactive map layout for locating physical campus resources and their availability.
+* 📅 **Faculty Cabin Connect:** Real-time walk-in scheduling and availability tracking to meet teachers during free hours. *(Module Phase 2: Implementation in Progress)*
+* 🤝 **Peer & Expert Mentorship:** Guidance section featuring live video calls with faculty, experts, and 3rd/4th-year students. *(Module Phase 2: Implementation in Progress)*
+
 ---
 
 ## ⚠️ Disclaimer & Testing Notes
@@ -42,11 +54,13 @@
 **🧹 Data Privacy & Resets:** As this is a testing environment, database records may be periodically wiped or reset without notice. Please **do not** enter any sensitive, real, or personal information while testing.
 
 ### 🔑 Demo Access
-If you would like to test the authenticated features (like booking faculty cabins or accessing the resource hub) without creating a new account, please use the provided test credentials below:
+If you would like to test the authenticated features (like the resource hub or practice sessions) without creating a new account, please use the provided test credentials below:
 
 | Account Type | Email Address | Password |
 | :--- | :--- | :--- |
 | **Test User** | `69iamthedominator@gmail.com` | `1234567` |
+
+---
 
 ## 🛠️ Tech Stack
 
