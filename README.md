@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# 🎓 Campus Connect
 
-First, run the development server:
+**A centralized academic and campus support platform designed to streamline student-faculty connectivity, resource discovery, and peer learning.**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_Site-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://campus-connect-b8zw.vercel.app)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+<!-- Badges -->
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Resend](https://img.shields.io/badge/Resend-000000?style=for-the-badge&logo=minutemailer&logoColor=white)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+<br />
 
-## Learn More
+<!-- Replace this image link with a screenshot or GIF of your actual app -->
+<img src="https://via.placeholder.com/1000x500.png?text=✨+Add+a+Screenshot+or+GIF+of+Campus+Connect+Here+✨" alt="Campus Connect Dashboard" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
 
-To learn more about Next.js, take a look at the following resources:
+</div>
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📌 Features
 
-## Deploy on Vercel
+*   🗺️ **Campus Locator & Desks:** Interactive map layout for locating lecture halls and faculty cabins.
+*   📅 **Faculty Cabin Connect:** Real-time walk-in scheduling and availability tracking.
+*   📚 **Academic Resource Hub:** Central repository for missed-lecture notes and digital resources.
+*   🤝 **Peer Mentorship:** Integrated study sessions and practice quiz modules.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Tech Stack
+
+<details>
+  <summary><b>View Architecture Details</b></summary>
+  <br/>
+  <ul>
+    <li><b>Framework:</b> Next.js (App Router, TypeScript)</li>
+    <li><b>Styling & Animation:</b> Tailwind CSS, Framer Motion, Lucide Icons</li>
+    <li><b>Backend & Database:</b> Supabase (PostgreSQL with Row Level Security)</li>
+    <li><b>Communications:</b> Resend API</li>
+    <li><b>Deployment:</b> Vercel</li>
+  </ul>
+</details>
+
+---
+
+## 🚀 Getting Started
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/LAke000/Campus_Connect.git](https://github.com/LAke000/Campus_Connect.git)
+   cd Campus_Connect
