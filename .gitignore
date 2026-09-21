@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Agent and tool configurations
+.agent/
+.agents/
+skills-lock.json
+AGENTS.md
+CLAUDE.md
+
+# Scratch / temporary files
+tst
+campus_connect_bug_report.txt
+
+

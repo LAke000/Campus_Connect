@@ -104,32 +104,53 @@ export function Sidebar({ className }: { className?: string }) {
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Fetch user session and metadata
-  const fetchUser = async () => {
-    try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError || !session) {
-        router.push("/login");
-        return;
-      }
-
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        router.push("/login");
-        return;
-      }
-      setUser(data.user);
-    } catch (err) {
-      router.push("/login");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchUser = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          if (isMounted) setUser(session.user);
+          return;
+        }
+
+        if (sessionError || !session) {
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user && isMounted) {
+            setUser(userData.user);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Sidebar auth fetch error:", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
     fetchUser();
-  }, []);
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+        router.push("/login");
+      } else if (session?.user) {
+        setUser(session.user);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [router]);
 
   // Handle logout
   const handleLogout = async () => {
