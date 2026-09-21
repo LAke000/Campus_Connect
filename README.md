@@ -33,6 +33,20 @@
 *   🤝 **Peer Mentorship:** Integrated study sessions and practice quiz modules.
 
 ---
+---
+
+## ⚠️ Disclaimer & Testing Notes
+
+**🧪 Active Development:** This application is currently a **prototype under active development** and is not the final production build. Several features are still experimental, and you may encounter occasional bugs or unpolished UI elements.
+
+**🧹 Data Privacy & Resets:** As this is a testing environment, database records may be periodically wiped or reset without notice. Please **do not** enter any sensitive, real, or personal information while testing.
+
+### 🔑 Demo Access
+If you would like to test the authenticated features (like booking faculty cabins or accessing the resource hub) without creating a new account, please use the provided test credentials below:
+
+| Account Type | Email Address | Password |
+| :--- | :--- | :--- |
+| **Test User** | `69iamthedominator@gmail.com` | `1234567` |
 
 ## 🛠️ Tech Stack
 
